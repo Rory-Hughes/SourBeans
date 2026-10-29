@@ -15,21 +15,22 @@
 
 Splitting by feature rather than one person always doing frontend and the other always doing backend encourages broader learning:
 
-| Work | Primary lead | Reviewer / pairing partner |
-|---|---|---|
-| Projects domain + API | A | B |
-| Issues domain + API | B | A |
-| Projects Thymeleaf pages | B | A |
-| Issues Thymeleaf pages | A | B |
-| Form login | A | B |
-| JWT API security | B | A |
-| Authorization and Ubuntu deployment | Together | Together |
+| Work                                | Primary lead | Reviewer / pairing partner |
+| ----------------------------------- | ------------ | -------------------------- |
+| Projects domain + API               | Rory         | Josh                       |
+| Issues domain + API                 | Josh         | Rory                       |
+| Projects Thymeleaf pages            | Josh         | Rory                       |
+| Issues Thymeleaf pages              | Rory         | Josh                       |
+| Form login                          | Rory         | Josh                       |
+| JWT API security                    | Josh         | Rory                       |
+| Authorization and Ubuntu deployment | Together     | Together                   |
 
 Switch roles if one person wants additional practice in a particular area. Review both directions.
 
 ## Integration checkpoints
 
 Before opening a PR:
+
 1. Pull latest `main` and resolve conflicts.
 2. Run Maven build and the test suite (`./mvnw test` once Maven Wrapper exists; Windows: `mvnw.cmd test`).
 3. Exercise the relevant Thymeleaf or API path manually.
@@ -40,7 +41,7 @@ At least once per work session, spend 10–15 minutes together reviewing changes
 ## Lightweight documentation rules
 
 - **Charter:** Update when goals or boundaries change.
-- **Requirements:** Change acceptance criteria *before* implementation when possible.
+- **Requirements:** Change acceptance criteria _before_ implementation when possible.
 - **Architecture/API:** Update when adding entities, endpoints, or auth rules.
 - **Decision record:** Record choices that would be expensive to reverse (not every minor preference).
 - **README:** Keep setup instructions accurate from the moment code exists.

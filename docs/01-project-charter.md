@@ -2,7 +2,7 @@
 
 **Project:** Mini Issue Tracker  
 **Status:** Draft / team review  
-**Team:** Developer A and Developer B (replace with names)  
+**Team:** Rory and Josh (replace with names)  
 **Purpose:** Independent practice for PROG1346A concepts
 
 ## Problem statement
@@ -67,23 +67,23 @@ Comments, issue assignees, attachments, notifications, email, activity timeline,
 - Two part-time student developers with classwork as the higher priority.
 - Prefer concepts covered in class; additional dependencies require team discussion.
 - Keep each feature small enough for one PR and review.
-- Start without login *only on localhost*; secure before network exposure.
+- Start without login _only on localhost_; secure before network exposure.
 - Dates are suggested milestones, not academic due dates.
 - Exact requirements of the graded assignments may differ from the course outline.
 
 ## Project risks
 
-| Risk | Impact | Mitigation |
-|---|---|---|
-| Too many features | Practice project becomes unmanageable | Freeze MVP and track ideas as stretch issues |
-| Merge conflicts | Lost time | Small PRs, separate files where practical, integrate frequently |
-| Security bolted on too late | Architecture rework | Use service layer, DTOs, and project-scoped access from the beginning |
-| Inconsistent API/web logic | Bugs | Share domain services; do not place business rules in controllers |
-| Database setup friction | Slow onboarding | Document MySQL credentials via local environment config, never commit passwords |
+| Risk                        | Impact                                | Mitigation                                                                      |
+| --------------------------- | ------------------------------------- | ------------------------------------------------------------------------------- |
+| Too many features           | Practice project becomes unmanageable | Freeze MVP and track ideas as stretch issues                                    |
+| Merge conflicts             | Lost time                             | Small PRs, separate files where practical, integrate frequently                 |
+| Security bolted on too late | Architecture rework                   | Use service layer, DTOs, and project-scoped access from the beginning           |
+| Inconsistent API/web logic  | Bugs                                  | Share domain services; do not place business rules in controllers               |
+| Database setup friction     | Slow onboarding                       | Document MySQL credentials via local environment config, never commit passwords |
 
 ## Team sign-off
 
-- [ ] Developer A has reviewed this charter.
-- [ ] Developer B has reviewed this charter.
+- [ ] Rory has reviewed this charter.
+- [ ] Josh has reviewed this charter.
 - [ ] Scope and terminology are agreed.
 - [ ] Open decisions are resolved or explicitly deferred.

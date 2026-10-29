@@ -52,6 +52,7 @@ erDiagram
 ```
 
 **Rules:**
+
 - An issue belongs to exactly one project; project can have zero or many issues.
 - Project ID and Issue ID are server-generated.
 - Status: `OPEN`, `IN_PROGRESS`, `CLOSED`.
@@ -70,45 +71,49 @@ erDiagram
 
 Base path: `/api` (a later `/api/v1` prefix is optional; decide before coding).
 
-| HTTP | Path | Meaning | Expected success |
-|---|---|---|---|
-| GET | `/api/projects` | List projects | 200 |
-| POST | `/api/projects` | Create project | 201 + `Location` |
-| GET | `/api/projects/{projectId}` | Get project | 200 |
-| PUT | `/api/projects/{projectId}` | Update project | 200 |
-| DELETE | `/api/projects/{projectId}` | Delete **empty** project | 204 |
-| GET | `/api/projects/{projectId}/issues` | List issues; optional `status` / `priority` query parameters | 200 |
-| POST | `/api/projects/{projectId}/issues` | Create issue | 201 + `Location` |
-| GET | `/api/issues/{issueId}` | Get issue | 200 |
-| PUT | `/api/issues/{issueId}` | Update issue | 200 |
-| DELETE | `/api/issues/{issueId}` | Delete issue | 204 |
+| HTTP   | Path                               | Meaning                                                      | Expected success |
+| ------ | ---------------------------------- | ------------------------------------------------------------ | ---------------- |
+| GET    | `/api/projects`                    | List projects                                                | 200              |
+| POST   | `/api/projects`                    | Create project                                               | 201 + `Location` |
+| GET    | `/api/projects/{projectId}`        | Get project                                                  | 200              |
+| PUT    | `/api/projects/{projectId}`        | Update project                                               | 200              |
+| DELETE | `/api/projects/{projectId}`        | Delete **empty** project                                     | 204              |
+| GET    | `/api/projects/{projectId}/issues` | List issues; optional `status` / `priority` query parameters | 200              |
+| POST   | `/api/projects/{projectId}/issues` | Create issue                                                 | 201 + `Location` |
+| GET    | `/api/issues/{issueId}`            | Get issue                                                    | 200              |
+| PUT    | `/api/issues/{issueId}`            | Update issue                                                 | 200              |
+| DELETE | `/api/issues/{issueId}`            | Delete issue                                                 | 204              |
 
 ### Example JSON
 
 **Create a project —** `POST /api/projects`
 
 ```json
-{"name":"Class Project","description":"Issues for our practice app"}
+{ "name": "Class Project", "description": "Issues for our practice app" }
 ```
 
 **Create an issue —** `POST /api/projects/1/issues`
 
 ```json
-{"title":"Add issue filters","description":"Filter by status and priority","priority":"MEDIUM"}
+{
+    "title": "Add issue filters",
+    "description": "Filter by status and priority",
+    "priority": "MEDIUM"
+}
 ```
 
 **Issue response example** (illustrative IDs/dates):
 
 ```json
 {
-  "id": 12,
-  "projectId": 1,
-  "title": "Add issue filters",
-  "description": "Filter by status and priority",
-  "status": "OPEN",
-  "priority": "MEDIUM",
-  "createdAt": "2026-10-29T18:00:00Z",
-  "updatedAt": "2026-10-29T18:00:00Z"
+    "id": 12,
+    "projectId": 1,
+    "title": "Add issue filters",
+    "description": "Filter by status and priority",
+    "status": "OPEN",
+    "priority": "MEDIUM",
+    "createdAt": "2026-10-29T18:00:00Z",
+    "updatedAt": "2026-10-29T18:00:00Z"
 }
 ```
 
@@ -122,19 +127,23 @@ Base path: `/api` (a later `/api/v1` prefix is optional; decide before coding).
 Example validation error (proposed, customize when implementing):
 
 ```json
-{"error":"VALIDATION_ERROR","message":"Please correct the input","fields":{"title":"Title must be 5–120 characters"}}
+{
+    "error": "VALIDATION_ERROR",
+    "message": "Please correct the input",
+    "fields": { "title": "Title must be 5–120 characters" }
+}
 ```
 
 ## Thymeleaf route sketch (not a fixed contract)
 
-| URL | Page/action |
-|---|---|
-| `GET /projects` | Project list |
-| `GET /projects/new` | New project form |
-| `GET /projects/{projectId}` | Project detail + issue list |
-| `GET /projects/{projectId}/issues/new` | New issue form |
-| `GET /issues/{issueId}` | Issue details |
-| `GET /issues/{issueId}/edit` | Edit issue form |
+| URL                                    | Page/action                 |
+| -------------------------------------- | --------------------------- |
+| `GET /projects`                        | Project list                |
+| `GET /projects/new`                    | New project form            |
+| `GET /projects/{projectId}`            | Project detail + issue list |
+| `GET /projects/{projectId}/issues/new` | New issue form              |
+| `GET /issues/{issueId}`                | Issue details               |
+| `GET /issues/{issueId}/edit`           | Edit issue form             |
 
 Form POST routes are implementation decisions; generally follow Post/Redirect/Get after successful mutations.
 
