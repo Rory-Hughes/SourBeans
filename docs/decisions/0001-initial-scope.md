@@ -33,7 +33,7 @@ These choices provide practice with the course's core technologies and keep resp
 
 - [x] Keep **Mini Issue Tracker** as name, or rename it to: SourBeans.
 - [x] Agree on **single repository** and repository owner: Rory Hughes
-- [ ] Decide default package name (e.g., `ca.example.miniissuetracker`): __________
+- [x] Decide default package name (e.g., `ca.example.miniissuetracker`): ca.example.sourbeans
 - [ ] Choose local **MySQL installation vs container**: __________
 - [ ] Agree on API prefix (`/api` proposed) and error response shape: __________
 - [ ] Choose intended first demo date (optional): __________
