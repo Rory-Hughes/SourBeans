@@ -1,7 +1,7 @@
 # 01 — Project Charter
 
 **Project:** SourBeans
-**Status:** Planning — MVP scope accepted in [ADR-0001](decisions/0001-initial-scope.md); charter review tracked separately  
+**Status:** Planning — MVP scope accepted in [ADR-0001](decisions/0001-initial-scope.md); charter review tracked separately
 **Team:** Rory Hughes and Joshua Lynch
 **Purpose:** Independent practice for PROG1346A concepts
 
@@ -73,12 +73,12 @@ Comments, issue assignees, attachments, notifications, email, activity timeline,
 
 ## Project risks
 
-| Risk                        | Impact                                | Mitigation                                                                      |
-| --------------------------- | ------------------------------------- | ------------------------------------------------------------------------------- |
-| Too many features           | Practice project becomes unmanageable | Freeze MVP and track ideas as stretch issues                                    |
-| Merge conflicts             | Lost time                             | Small PRs, separate files where practical, integrate frequently                 |
-| Security bolted on too late | Architecture rework                   | Use service layer, DTOs, and project-scoped access from the beginning           |
-| Inconsistent API/web logic  | Bugs                                  | Share domain services; do not place business rules in controllers               |
+| Risk                        | Impact                                | Mitigation                                                                         |
+| --------------------------- | ------------------------------------- | ---------------------------------------------------------------------------------- |
+| Too many features           | Practice project becomes unmanageable | Freeze MVP and track ideas as stretch issues                                       |
+| Merge conflicts             | Lost time                             | Small PRs, separate files where practical, integrate frequently                    |
+| Security bolted on too late | Architecture rework                   | Use service layer, DTOs, and project-scoped access from the beginning              |
+| Inconsistent API/web logic  | Bugs                                  | Share domain services; do not place business rules in controllers                  |
 | Database setup friction     | Slow onboarding                       | Use the [local development guide](06-local-development.md); never commit passwords |
 
 ## Team sign-off

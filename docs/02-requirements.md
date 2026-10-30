@@ -1,6 +1,6 @@
 # 02 — Requirements and User Stories
 
-**Status:** Planning — initial MVP scope approved in [ADR-0001](decisions/0001-initial-scope.md). Requirement IDs are stable identifiers for future GitHub Issues and tests.
+**Status:** Draft. Requirement IDs are stable identifiers for future GitHub Issues and tests.
 
 ## Domain vocabulary
 
@@ -66,7 +66,7 @@
 - **Testability:** Unit tests for services plus controller/API tests for key workflows.
 - **Usability:** Clear navigation and messages on success, missing content, and invalid input.
 - **Security:** No secrets in Git; use password hashing and least-privilege authorization in Release 2.
-- **Operations:** Each developer uses a locally installed MySQL instance, configured as described in the [local development guide](06-local-development.md); document Ubuntu deployment separately for Release 2.
+- **Operations:** Document local setup and Ubuntu deployment.
 
 ## Deferred ideas (not acceptance criteria)
 

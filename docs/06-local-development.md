@@ -40,11 +40,11 @@ mysql -h localhost -u sourbeans_app -p sourbeans
 
 The intended datasource values for each developer are:
 
-| Setting | Local value |
-| --- | --- |
-| `SPRING_DATASOURCE_URL` | `jdbc:mysql://localhost:3306/sourbeans` |
-| `SPRING_DATASOURCE_USERNAME` | `sourbeans_app` |
-| `SPRING_DATASOURCE_PASSWORD` | Your **own** local password |
+| Setting                      | Local value                             |
+| ---------------------------- | --------------------------------------- |
+| `SPRING_DATASOURCE_URL`      | `jdbc:mysql://localhost:3306/sourbeans` |
+| `SPRING_DATASOURCE_USERNAME` | `sourbeans_app`                         |
+| `SPRING_DATASOURCE_PASSWORD` | Your **own** local password             |
 
 For a temporary **PowerShell** terminal session:
 
