@@ -1,8 +1,8 @@
 # 01 — Project Charter
 
-**Project:** Mini Issue Tracker  
+**Project:** SourBeans
 **Status:** Draft / team review  
-**Team:** Rory and Josh (replace with names)  
+**Team:** Rory and Josh
 **Purpose:** Independent practice for PROG1346A concepts
 
 ## Problem statement
@@ -84,6 +84,6 @@ Comments, issue assignees, attachments, notifications, email, activity timeline,
 ## Team sign-off
 
 - [ ] Rory has reviewed this charter.
-- [ ] Josh has reviewed this charter.
+- [x] Josh has reviewed this charter.
 - [ ] Scope and terminology are agreed.
 - [ ] Open decisions are resolved or explicitly deferred.
