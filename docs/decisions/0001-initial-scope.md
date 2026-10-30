@@ -32,15 +32,15 @@ These choices provide practice with the course's core technologies and keep resp
 ## Decisions to confirm at the kickoff
 
 - [x] Keep **Mini Issue Tracker** as name, or rename it to: SourBeans.
-- [x] Agree on **single repository** and repository owner: Rory Hughes
-- [x] Decide default package name (e.g., `ca.example.miniissuetracker`): ca.example.sourbeans
-- [ ] Choose local **MySQL installation vs container**: __________
-- [ ] Agree on API prefix (`/api` proposed) and error response shape: __________
-- [ ] Choose intended first demo date (optional): __________
-- [ ] Agree on working/session cadence and initial issue leads: __________
-- [ ] Confirm both developers approve MVP / deferred features: __________
+- [x] Agree on **single repository** and repository owner: Rory Hughes.
+- [x] Decide default package name (e.g., `ca.example.miniissuetracker`): ca.humanbeans.sourbeans .
+- [x] Choose local **MySQL installation vs container**: local installation.
+- [x] Agree on API prefix (`/api` proposed) and error response shape: /api using RFC 9457 (see https://www.rfc-editor.org/info/rfc9457/).
+- [x] Choose intended first demo date (optional): N/A.
+- [x] Agree on working/session cadence and initial issue leads: Kanban Assignments.
+- [x] Confirm both developers approve MVP / deferred features: Agreed.
 
 ## Approval
 
 - Rory : __________ / Date: __________
-- Josh : __________ / Date: __________
+- Josh : Joshua Lynch / Date: 2026-10-29
