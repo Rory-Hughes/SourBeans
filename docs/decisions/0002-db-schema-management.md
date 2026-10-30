@@ -1,4 +1,4 @@
-# ADR-0002: Database Schema Management, Lookup Tables and Test Data
+# ADR-0002: Database Schema Management, Reference Values and Test Data
 
 **Status:** Proposed\
 **Date:** 2026-10-30\
@@ -29,34 +29,32 @@ The app should apply the schema for us, and we do not want to lose all local dat
 
 ### 3. Database creation
 
-- **A. `createDatabaseIfNotExist=true` on the JDBC URL (chosen).** The driver creates the database on first connect, so `schema.sql` contains only tables and seeds. The MySQL user needs permission to create databases.
-- **B. A separate one-time `setup.sql`** that creates both databases and grants privileges. Keeps privileges explicit, but adds a manual setup step.
+- **A. `createDatabaseIfNotExist=true` on the JDBC URL.** The driver creates the database on first connect, so there is no setup step. The app's MySQL user needs permission to create databases, and the new database gets whatever default charset and collation each machine's server has.
+- **B. A separate one-time `setup.sql` (chosen)** that creates both databases with an explicit charset and collation and grants the app user its privileges. Both databases are identical on both machines and privileges stay explicit, but it adds a manual setup step on each machine.
 
-### 4. Lookup data
+### 4. Reference values (status, priority, role)
 
-- **A. Lookup tables (chosen)** with a foreign key from the referencing table, mapped as JPA entities.
-- **B. Java enums** stored as strings. No table, but string-stored enums sort alphabetically and cannot carry a display label or retire values without a code change.
+- **A. Lookup tables** with a foreign key from the referencing table, mapped as JPA entities. Gives foreign-key integrity, labels and ordering in the database, and new values by `INSERT`, but adds entity classes, joins and seed-data handling.
+- **B. Java enums stored as strings (chosen).** Mapped with `@Enumerated(EnumType.STRING)` into `VARCHAR` columns. No extra tables, entities or joins, and values are checked at compile time. The display label and sort order live on the enum in Java, because a string column sorts alphabetically and cannot carry them. Adding or retiring a value needs a code change.
 - **C. MySQL `ENUM` columns.** The database enforces values, but changes need an `ALTER TABLE` and mapping is awkward.
 
 ### 5. Retiring lookup values
 
-- **A. An `active` flag (chosen).** Dropdowns show only active rows, and existing issues keep their value.
-- **B. No flag.** Lookup values are permanent, and any removal is a hand-written change.
+Not applicable. Lookup tables were not chosen in option 4, so there is no `active` flag. Retiring an enum value is covered in Decision 7.
 
 ### 6. Seeding lookup rows
 
-- **A. `INSERT ... ON DUPLICATE KEY UPDATE`, keyed on `code` (chosen).** Every restart re-asserts the file's values, so `schema.sql` is the single source of truth for reference data.
-- **B. `INSERT IGNORE`.** Only adds missing rows, so edits to labels or ordering never reach existing databases, and it silently swallows unrelated errors.
+Not applicable. Reference values are enum constants, so there are no rows to seed and `schema.sql` contains no reference data.
 
 ### 7. Release 2 tables
 
-- **A. Create the full schema from day one (chosen).** `users`, `roles` and `project_members` exist from the start, so Release 2 needs no schema edit for them.
-- **B. Add them when Release 2 starts.** Cheap, because new tables are picked up automatically, but the schema would no longer be complete from the beginning.
+- **A. Create the full schema from day one.** `users` and `project_members` exist from the start, so Release 2 needs no schema edit for them, but they sit unused during Release 1.
+- **B. Add them when Release 2 starts (chosen).** Cheap, because `schema.sql` is re-runnable and a new `CREATE TABLE IF NOT EXISTS` is picked up automatically at the next start with no `ALTER`. The Release 1 schema holds only what Release 1 uses, but the schema is no longer complete from the beginning.
 
 ### 8. Existing local databases
 
 - **A. Drop and recreate once (chosen).** Clean, and cheap now because no real data exists yet.
-- **B. Hand-write an `ALTER` for the lookup tables.** Keeps existing data, but is fiddly for a one-time change.
+- **B. Hand-write an `ALTER` to bring existing tables in line with the final schema.** Keeps existing data, but is fiddly for a one-time change.
 
 ### 9. Test database
 
@@ -88,40 +86,46 @@ The app should apply the schema for us, and we do not want to lose all local dat
 
 1. **No migration tool.** The schema lives in a hand-written `src/main/resources/schema.sql`, run by Spring at startup with `spring.sql.init.mode=always`. Every table uses `CREATE TABLE IF NOT EXISTS`, so re-running it never drops data.
 2. **Hibernate runs with `spring.jpa.hibernate.ddl-auto=validate`.** `update`, `create` and `create-drop` are not used in any profile.
-3. **The full schema is created from the first version,** including `users`, `roles` and `project_members`, even though Release 2 is the first to use them.
-4. **Database creation uses `createDatabaseIfNotExist=true`** on the JDBC URL. `CREATE DATABASE` and `USE` do not appear in `schema.sql`, because `USE` would send the test run's tables into the wrong database. The README states that the MySQL user needs permission to create databases.
-5. **Status, priority and role values are lookup tables.** Statuses and priorities have a numeric primary key, a unique `code`, a display `label`, a `sort_order` and an `active` flag. Roles have a numeric primary key and a unique `name`, since they are never shown in a dropdown or retired.
-6. **Application code refers to lookup values by `code` (or `name` for roles), never by numeric id.**
-7. **Lookup rows are never deleted.** `ON DELETE RESTRICT` enforces this for rows in use, and unwanted values are retired by setting `active` to false.
-8. **Lookup rows are seeded in `schema.sql` using `INSERT ... ON DUPLICATE KEY UPDATE`, keyed on `code`.** The file is the single source of truth for reference data, so manual edits to those rows in a database are overwritten at the next start.
-9. **Initial lookup values:** statuses `TODO`, `IN_PROGRESS`, `DONE`; priorities `UNDEFINED`, `LOW`, `MEDIUM`, `HIGH`; roles `OWNER`, `MEMBER`.
-10. **Schema changes to existing tables** are made by editing `schema.sql` so fresh databases are correct, plus a hand-run `ALTER` on each existing local database. The `ALTER` is recorded in both the PR description and a dated entry in `docs/schema-changes.md`. A schema PR does not merge until the reviewer has run it against both a clean database and an existing one.
-11. **Existing local databases are rebuilt once.** Both developers drop and recreate `sourbeans` and `sourbeans_test`, then let the app build them from the final `schema.sql`.
+3. **Release 1 creates only the tables Release 1 uses.** The Release 2 tables (`users`, `project_members`) are added to `schema.sql` when Release 2 starts. As new tables they are created by the re-runnable script and need no `ALTER`.
+4. **Databases are created by a committed, one-time `setup.sql`,** run on each machine by a MySQL user with admin rights. It creates `sourbeans` and `sourbeans_test` with `CHARACTER SET utf8mb4` and `COLLATE utf8mb4_unicode_ci`, and grants the app user privileges on those two databases only, with no permission to create databases. `createDatabaseIfNotExist` is not used on the JDBC URLs. `CREATE DATABASE` and `USE` do not appear in `schema.sql`, because `USE` would send the test run's tables into the wrong database. `setup.sql` contains only a placeholder password for the app user, never a real one, and the README documents running it as the first setup step.
+5. **Status, priority and role values are Java enums stored as strings.** They are mapped with `@Enumerated(EnumType.STRING)` into `VARCHAR` columns. Each enum carries its own display label and sort order. There are no lookup tables.
+6. **The stored string is the enum constant's name.** Constants are never renamed casually, because a rename is a data change and needs an `UPDATE` on every existing database. Code and queries must never depend on the alphabetical order of the stored strings.
+7. **Enum constants are never deleted while rows use them.** A value that should no longer be offered stays in the enum, is flagged as retired in Java, and is left out of dropdowns, so existing issues still load. Adding a value means adding a constant and releasing the code.
+8. **`schema.sql` contains no reference data.** Reference values exist only as enum constants.
+9. **Initial enum values:** statuses `TODO`, `IN_PROGRESS`, `DONE`; priorities `UNDEFINED`, `LOW`, `MEDIUM`, `HIGH`; roles `OWNER`, `MEMBER`. Roles are first used when Release 2 adds `project_members`.
+10. **Schema changes to existing tables** are made by editing `schema.sql` so fresh databases are correct, plus a hand-run `ALTER` on each existing local database. The `ALTER` is recorded in both the PR description and a dated entry in `docs/schema-changes.md`. A schema PR does not merge until the reviewer has run it against both a clean database and an existing one. Adding a new table or a new enum constant does not count as a change to an existing table.
+11. **Existing local databases are rebuilt once.** Both developers drop `sourbeans` and `sourbeans_test`, run `setup.sql`, then let the app build the tables from the final `schema.sql`. This also replaces any database that was created earlier with a machine's default charset.
 12. **Tests use a separate `sourbeans_test` database** on each developer's local MySQL, built from the same `schema.sql`. H2 is not used.
-13. **Tests are `@Transactional` by default.** A test that cannot use rollback cleans up after itself, deleting in foreign-key order. Cleanup never deletes from `statuses`, `priorities` or `roles`.
-14. **Credentials live in a git-ignored `local.properties`,** imported with `spring.config.import=optional:file:./local.properties`. A committed `local.properties.example` shows the shape. Environment variables override the file and are the mechanism for the Ubuntu deployment. The test profile overrides only the datasource URL.
+13. **Tests are `@Transactional` by default.** A test that cannot use rollback cleans up after itself, deleting in foreign-key order.
+14. **Credentials live in a git-ignored `local.properties`,** imported with `spring.config.import=optional:file:./local.properties`. A committed `local.properties.example` shows the shape. Environment variables override the file and are the mechanism for the Ubuntu deployment. The test profile overrides only the datasource URL. The password a developer sets for the app user when running `setup.sql` is the one they put in `local.properties`.
 15. **Revisit trigger:** if the schema needs more than about two changes to existing tables, this ADR is reopened and a migration tool is reconsidered.
 
 ## Why
 
 - A re-runnable `schema.sql` gives us what we wanted: the app applies the schema, and our data survives restarts. It also keeps the schema as plain SQL we can read and review.
-- Skipping a migration tool is reasonable because the schema is modeled up front and we expect very few changes. Creating the whole schema on day one means that most of the schema is never touched again.
+- Skipping a migration tool is reasonable because the schema is modeled up front and we expect very few changes. New tables are created automatically by the re-runnable script, so only changes to existing tables are manual.
+- Adding the Release 2 tables when Release 2 starts keeps the Release 1 schema small and avoids carrying unused tables, at no extra cost because new tables need no `ALTER`.
 - `validate` is our safety net for the manual `ALTER` step. If one developer forgets to apply a change, the app tells them at startup instead of failing mysteriously on a page nobody tested.
-- Lookup tables give us foreign-key integrity, correct sort order, friendly labels for dropdowns and a safe way to add or retire values, all without a code release. Status is the set we expect to grow, and using tables for all three keeps filters and dropdowns consistent.
-- Treating `schema.sql` as the source of truth for lookup data keeps both machines identical, and it avoids the silent drift that `INSERT IGNORE` allows.
+- A one-time `setup.sql` makes both machines create their databases with the same charset and collation, instead of depending on whatever defaults each server happens to have. It also lets the app user run with only the privileges it needs, and it separates database creation from table creation: a script creates the databases, and the app builds the tables.
+- Java enums fit this project because the value sets are small and change rarely. They are checked at compile time, work directly in switch statements and security checks, and need no extra entity classes, joins or seed data. Both machines stay identical because the values come from the code, not from rows in each database.
 - A separate test database on real MySQL avoids dialect surprises and never touches development data, and `@Transactional` keeps tests independent with very little code.
 - A git-ignored properties file that Spring imports automatically needs no profile to activate, works the same in IntelliJ and on the command line, and matches how secrets will be provided on the VM.
 
 ## Consequences / trade-offs
 
+- Every machine needs a manual setup step before the first run. If someone skips `setup.sql`, the app fails to connect with an unknown-database error, so the README must list it first.
+- Tables take their charset and collation from the database. A database created by hand instead of by `setup.sql` will silently differ, and `validate` does not check charset.
+- The app user still needs table-level privileges (create, alter, index, references, and the usual data access) on both databases, because `schema.sql` runs at startup. It does not need permission to create databases.
+- `setup.sql` creates a user, so its password must stay a placeholder. A real password belongs only in the developer's `local.properties`.
 - Changes to existing tables are manual. They depend on both developers applying the `ALTER`, and on `validate` and the PR rule catching mistakes.
 - `IF NOT EXISTS` only protects table creation. It will never modify a table that already exists.
-- `INSERT ... ON DUPLICATE KEY UPDATE` overwrites manual edits to lookup rows at every start. That is intended, but it can surprise someone who edits a row in IntelliJ's database tool.
-- InnoDB consumes auto-increment values on duplicate-key inserts, so lookup ids may have gaps after restarts. Nothing may depend on specific id numbers.
-- The MySQL user needs permission to create databases, which is broader than the app needs once running. Deployment should use a more restricted user.
-- The Release 2 tables sit unused in Release 1. If one turns out to be wrong, fixing it uses one of the expected `ALTER`s.
+- Adding or retiring a status, priority or role needs a code change and a release. It cannot be done with a database `INSERT`.
+- The database does not enforce the allowed values, because the columns are plain `VARCHAR`. A bad string written by hand or by a bug only shows up when Hibernate fails to read the row.
+- Renaming an enum constant, or deleting one that rows still use, breaks reading existing data until every database is updated.
+- Ordering by a status or priority column in SQL sorts alphabetically, not by meaning. Sorting must be done in Java using the enum's sort order, or with an explicit `CASE` in the query.
+- Retired values stay in the enum code indefinitely.
+- If a Release 1 table later needs a reference to `users` (for example a creator or assignee column), adding it is an `ALTER` on an existing table and counts toward the revisit trigger. Release 1 design should decide early whether any such column is needed.
 - Hibernate's `validate` can complain about harmless type differences (for example `TIMESTAMP` or `TEXT` columns), so a few `columnDefinition` tweaks may be needed.
-- Lookup tables add entity classes and joins compared to enums. Role checks in security code will go through the `roles` table, so code must always refer to `OWNER` and `MEMBER` by name.
 - Tests that opt out of rollback are responsible for their own cleanup, and a forgotten cleanup shows up as leftover rows in `sourbeans_test`.
 - IntelliJ's Database tool remains useful for browsing and querying, but it is not a source of truth for the schema.
 
@@ -129,15 +133,16 @@ The app should apply the schema for us, and we do not want to lose all local dat
 
 - [ ] Schema management: hand-written `schema.sql` run at startup, no Flyway or Liquibase
 - [ ] Hibernate `ddl-auto=validate`
-- [ ] Database created via `createDatabaseIfNotExist=true`
-- [ ] Lookup tables for statuses, priorities and roles, with `code`, `label`, `sort_order` and `active` on statuses and priorities
-- [ ] Lookup seeds use `ON DUPLICATE KEY UPDATE`
-- [ ] Full schema created from day one, including Release 2 tables
-- [ ] Existing local databases dropped and recreated once
+- [ ] Databases created by a one-time `setup.sql` with explicit `utf8mb4` charset and collation, no `createDatabaseIfNotExist`
+- [ ] App user limited to the two databases, with no permission to create databases
+- [ ] Status, priority and role values as Java enums stored as strings, with label and sort order in the enum
+- [ ] Retired enum values stay in the code and are hidden from dropdowns
+- [ ] Release 1 schema only; `users` and `project_members` added when Release 2 starts
+- [ ] Existing local databases dropped, then rebuilt with `setup.sql` and the app
 - [ ] Separate `sourbeans_test` database, `@Transactional` by default
 - [ ] Credentials in a git-ignored `local.properties`, with a committed `.example`
 - [ ] Schema changes tracked in the PR description and `docs/schema-changes.md`
-- [ ] Review the final `schema.sql` against these decisions before merging
+- [ ] Review the final `schema.sql` and `setup.sql` against these decisions before merging
 
 ## Approval
 
