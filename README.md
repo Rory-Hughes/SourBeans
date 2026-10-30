@@ -25,18 +25,18 @@ These goals align with topics from PROG1346A – Enterprise Java Assignments 2 a
 
 ## Approved starting-point decisions
 
-| Area | Decision |
-| --- | --- |
-| Name | **SourBeans** |
-| Java base package | `ca.humanbeans.sourbeans` |
-| Application | Single Spring Boot application (not microservices) |
-| Browser + API | Thymeleaf HTML controllers and JSON REST controllers sharing services |
-| Database | **MySQL installed locally** on each developer's machine (no container for initial development) |
-| Persistence | Spring Data JPA, initially one `Project` with many `Issue` records |
-| API base path | `/api` |
-| API errors | [RFC 9457 Problem Details](https://www.rfc-editor.org/info/rfc9457/), using `application/problem+json` |
-| Team workflow | GitHub Issues, Kanban assignments, and reviewed pull requests |
-| Deployment | Only after authentication and authorization have been implemented and tested |
+| Area              | Decision                                                                                               |
+| ----------------- | ------------------------------------------------------------------------------------------------------ |
+| Name              | **SourBeans**                                                                                          |
+| Java base package | `ca.humanbeans.sourbeans`                                                                              |
+| Application       | Single Spring Boot application (not microservices)                                                     |
+| Browser + API     | Thymeleaf HTML controllers and JSON REST controllers sharing services                                  |
+| Database          | **MySQL installed locally** on each developer's machine (no container for initial development)         |
+| Persistence       | Spring Data JPA, initially one `Project` with many `Issue` records                                     |
+| API base path     | `/api`                                                                                                 |
+| API errors        | [RFC 9457 Problem Details](https://www.rfc-editor.org/info/rfc9457/), using `application/problem+json` |
+| Team workflow     | GitHub Issues, Kanban assignments, and reviewed pull requests                                          |
+| Deployment        | Only after authentication and authorization have been implemented and tested                           |
 
 See [ADR-0001](docs/decisions/0001-initial-scope.md) for the full agreement and both developers' approvals.
 

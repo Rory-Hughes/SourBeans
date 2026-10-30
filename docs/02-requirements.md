@@ -23,9 +23,9 @@
 | I-03 | I can edit an issue and change status/priority.  | Changes persist; only valid enum values accepted; updated timestamp changes.                                                                |
 | I-04 | I can delete an issue.                           | Issue is removed; project remains; subsequent issue GET returns 404.                                                                        |
 | I-05 | I can filter issues.                             | Project issue list supports optional status and/or priority filter; no filters shows all.                                                   |
-| A-01 | As a client, I can manage projects through REST. | JSON CRUD endpoints under `/api` are available with expected 200/201/204/400/404/409 outcomes.                                               |
+| A-01 | As a client, I can manage projects through REST. | JSON CRUD endpoints under `/api` are available with expected 200/201/204/400/404/409 outcomes.                                              |
 | A-02 | As a client, I can manage issues through REST.   | JSON endpoints support listing/creating issues by project and getting/updating/deleting an issue.                                           |
-| V-01 | As a user, I see useful validation errors.       | Empty/oversized fields produce clear messages; API errors use RFC 9457 Problem Details; bad IDs do not generate 500s.                        |
+| V-01 | As a user, I see useful validation errors.       | Empty/oversized fields produce clear messages; API errors use RFC 9457 Problem Details; bad IDs do not generate 500s.                       |
 
 > **Not for public release:** Release 1 REST endpoints do not require authentication. Run this build only in a controlled local environment.
 
