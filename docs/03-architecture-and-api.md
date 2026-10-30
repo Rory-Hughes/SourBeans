@@ -1,8 +1,8 @@
 # 03 — Architecture, Data Model, and API Sketch
 
-**Status:** Draft design, not code. Agree on names/paths before implementation.
+**Status:** Design sketch aligned to [accepted ADR-0001](decisions/0001-initial-scope.md); application code does not exist yet. Unspecified implementation details remain open.
 
-## Proposed technical architecture
+## Agreed technical direction
 
 ```mermaid
 flowchart TD
@@ -26,6 +26,10 @@ flowchart TD
 - `config` / `security`: database/app config and, later, auth.
 
 Use one Spring Boot application and one MySQL database. Do **not** split into microservices.
+
+- **Base Java package:** `ca.humanbeans.sourbeans` (e.g., `ca.humanbeans.sourbeans.controller.api`, `.service`, `.repository`, `.entity`).
+- **Local database:** Each developer installs MySQL locally, rather than using a container or a shared database server. See [local development setup](06-local-development.md).
+- **Spring configuration:** Supply database URL, username, and password outside source control. Exact Java/Spring/MySQL versions and schema migration approach remain to be selected together.
 
 ## Release 1 data model
 
@@ -67,9 +71,9 @@ erDiagram
 - `ProjectMembership`: `id`, `projectId`, `userId`, `role` (`OWNER` or `MEMBER`); enforce uniqueness for `(projectId, userId)`.
 - At least one owner per project; define project-creation ownership during security implementation.
 
-## REST API v1 (proposed)
+## REST API sketch (agreed prefix; routes pending implementation)
 
-Base path: `/api` (a later `/api/v1` prefix is optional; decide before coding).
+**Approved base path:** `/api`. The specific resource routes below are initial design proposals. A different prefix would require updating the accepted decision.
 
 | HTTP   | Path                               | Meaning                                                      | Expected success |
 | ------ | ---------------------------------- | ------------------------------------------------------------ | ---------------- |
@@ -119,20 +123,25 @@ Base path: `/api` (a later `/api/v1` prefix is optional; decide before coding).
 
 ### Error behavior
 
+- **Agreed format:** API failures return RFC 9457 Problem Details, normally with `Content-Type: application/problem+json`. Use the standard `type`, `title`, `status`, `detail`, and (when useful) `instance` members. Any extra field-validation members require an explicit, documented choice during implementation.
 - `400 Bad Request`: invalid form/JSON, enum, or field constraints.
 - `404 Not Found`: project or issue ID doesn't exist.
 - `409 Conflict`: attempting to delete a project with issues.
 - Release 2: `401 Unauthorized` when not authenticated; `403 Forbidden` (or intentionally hidden `404`) for disallowed access. Decide one policy and apply consistently.
 
-Example validation error (proposed, customize when implementing):
+Example RFC 9457 validation response (illustrative; no custom extensions required yet):
 
 ```json
 {
-    "error": "VALIDATION_ERROR",
-    "message": "Please correct the input",
-    "fields": { "title": "Title must be 5–120 characters" }
+    "type": "about:blank",
+    "title": "Bad Request",
+    "status": 400,
+    "detail": "The issue title must contain 5–120 characters.",
+    "instance": "/api/projects/1/issues"
 }
 ```
+
+For a missing resource or a conflict, use the same Problem Details structure with the corresponding HTTP status (404 or 409). Browser form validation can display field-specific messages without returning JSON.
 
 ## Thymeleaf route sketch (not a fixed contract)
 
@@ -164,9 +173,12 @@ Form POST routes are implementation decisions; generally follow Post/Redirect/Ge
 4. Expose it only through approved network/firewall configuration; use HTTPS if network-accessible.
 5. Restart and verify that data persists and authorization still works.
 
-## Open technical decisions
+## Remaining implementation choices
 
-- Exact Java/Spring Boot dependency versions consistent with course instruction.
-- Local DB provisioning (installed MySQL vs a container) and shared seed data.
+ADR-0001 has already settled the package name, **local MySQL installation**, **`/api` prefix**, and **RFC 9457** error format. The following are still undecided:
+
+- Exact Java, Spring Boot, and compatible MySQL versions, consistent with course instruction.
+- Whether to use shared example seed data and how to distribute it safely.
 - Local schema management and a safe migration mechanism before deployment.
-- Error-response convention and API prefix.
+- Any additional Problem Details extension members for field-level validation.
+- Final endpoint payloads and web form routes, which are sketched above but not yet implemented.

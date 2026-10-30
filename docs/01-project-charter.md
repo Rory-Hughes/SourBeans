@@ -1,8 +1,8 @@
 # 01 — Project Charter
 
 **Project:** SourBeans
-**Status:** Draft / team review  
-**Team:** Rory and Josh
+**Status:** Planning — MVP scope accepted in [ADR-0001](decisions/0001-initial-scope.md); charter review tracked separately  
+**Team:** Rory Hughes and Joshua Lynch
 **Purpose:** Independent practice for PROG1346A concepts
 
 ## Problem statement
@@ -34,7 +34,7 @@ Initially, one or two student developers managing their own practice projects. I
 - Issue CRUD within a project.
 - Issue status and priority.
 - Project detail page with issue list and filters.
-- REST API for projects and issues.
+- REST API for projects and issues under `/api`, with RFC 9457 Problem Details error responses.
 - Data persistence via JPA and MySQL.
 - Web and API input validation, not-found handling, and basic tests.
 
@@ -79,11 +79,13 @@ Comments, issue assignees, attachments, notifications, email, activity timeline,
 | Merge conflicts             | Lost time                             | Small PRs, separate files where practical, integrate frequently                 |
 | Security bolted on too late | Architecture rework                   | Use service layer, DTOs, and project-scoped access from the beginning           |
 | Inconsistent API/web logic  | Bugs                                  | Share domain services; do not place business rules in controllers               |
-| Database setup friction     | Slow onboarding                       | Document MySQL credentials via local environment config, never commit passwords |
+| Database setup friction     | Slow onboarding                       | Use the [local development guide](06-local-development.md); never commit passwords |
 
 ## Team sign-off
 
 - [ ] Rory has reviewed this charter.
 - [x] Josh has reviewed this charter.
-- [ ] Scope and terminology are agreed.
+- [x] Scope and terminology are agreed in ADR-0001.
 - [ ] Open decisions are resolved or explicitly deferred.
+
+> ADR-0001 contains both developers' approvals of scope and architecture. The individual charter-review checkboxes above are tracked separately; approval of the ADR is not recorded as a charter review.

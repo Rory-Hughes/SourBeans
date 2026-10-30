@@ -11,23 +11,17 @@
 - Each person reviews the other's PR for correctness, clarity, tests and scope.
 - Rebase/merge latest `main` frequently to avoid long-running conflicts.
 
-## Team ownership
+## Team ownership and task selection
 
-Splitting by feature rather than one person always doing frontend and the other always doing backend encourages broader learning:
+The **GitHub Kanban board** is authoritative for current assignments and task state, as agreed in [ADR-0001](decisions/0001-initial-scope.md). The starter backlog is a set of candidate tasks, **not** a fixed allocation of Rory-versus-Josh responsibilities.
 
-| Work                                | Primary lead | Reviewer / pairing partner |
-| ----------------------------------- | ------------ | -------------------------- |
-| Projects domain + API               | Rory         | Josh                       |
-| Issues domain + API                 | Josh         | Rory                       |
-| Projects Thymeleaf pages            | Josh         | Rory                       |
-| Issues Thymeleaf pages              | Rory         | Josh                       |
-| Form login                          | Rory         | Josh                       |
-| JWT API security                    | Josh         | Rory                       |
-| Authorization and Ubuntu deployment | Together     | Together                   |
-
-Switch roles if one person wants additional practice in a particular area. Review both directions.
+- Assign and move issue cards in Kanban before beginning work; reference the issue in the branch and PR.
+- Rotate feature leads and reviewers so each developer gains experience with controllers, services, persistence, tests, and the UI.
+- The other developer reviews a PR before merge; request a pairing session for decisions that cut across both feature areas.
 
 ## Integration checkpoints
+
+For local database setup, follow [06 — Local Development](06-local-development.md). No container or shared database is required for the approved starting point.
 
 Before opening a PR:
 
@@ -44,7 +38,7 @@ At least once per work session, spend 10–15 minutes together reviewing changes
 - **Requirements:** Change acceptance criteria _before_ implementation when possible.
 - **Architecture/API:** Update when adding entities, endpoints, or auth rules.
 - **Decision record:** Record choices that would be expensive to reverse (not every minor preference).
-- **README:** Keep setup instructions accurate from the moment code exists.
+- **README and local setup guide:** Keep environment and run instructions accurate from the moment code exists; use a locally installed MySQL instance per developer.
 
 ## PR checklist
 

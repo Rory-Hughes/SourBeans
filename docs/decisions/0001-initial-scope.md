@@ -1,13 +1,13 @@
 # ADR-0001 — Initial Scope and Architectural Starting Point
 
-**Status:** Proposed — both developers should approve before coding  
+**Status:** Accepted — approved by both developers on 2026-10-29  
 **Date:** 2026-10-29
 
 ## Context
 
 We want an independent two-person practice application covering the Spring Boot, Thymeleaf, REST, JPA, Spring Security, JWT, and Ubuntu deployment topics from PROG1346A. We need to avoid overbuilding before core workflows work.
 
-## Proposed decisions
+## Approved decisions
 
 1. Build a **single Spring Boot application**, rather than microservices.
 2. Deliver **projects + issues** first; no authentication until the next phase, with local-only access meanwhile.
@@ -29,15 +29,15 @@ These choices provide practice with the course's core technologies and keep resp
 - Supporting both session-based browser login and JWT-secured APIs adds complexity but increases learning value.
 - A small domain limits feature breadth, which is deliberate.
 
-## Decisions to confirm at the kickoff
+## Kickoff choices — confirmed
 
 - [x] Keep **Mini Issue Tracker** as name, or rename it to: SourBeans.
 - [x] Agree on **single repository** and repository owner: Rory Hughes.
-- [x] Decide default package name (e.g., `ca.example.miniissuetracker`): ca.humanbeans.sourbeans .
-- [x] Choose local **MySQL installation vs container**: local installation.
-- [x] Agree on API prefix (`/api` proposed) and error response shape: /api using RFC 9457 (see https://www.rfc-editor.org/info/rfc9457/).
+- [x] Decide default package name (e.g., `ca.example.miniissuetracker`): `ca.humanbeans.sourbeans`.
+- [x] Choose local **MySQL installation vs container**: a local MySQL installation on each developer's machine.
+- [x] Agree on API prefix (`/api` proposed) and error response shape: `/api`, with RFC 9457 Problem Details for API errors (see https://www.rfc-editor.org/info/rfc9457/).
 - [x] Choose intended first demo date (optional): N/A.
-- [x] Agree on working/session cadence and initial issue leads: Kanban Assignments.
+- [x] Agree on working/session cadence and initial issue leads: the GitHub Kanban board is authoritative for assignments.
 - [x] Confirm both developers approve MVP / deferred features: Agreed.
 
 ## Approval
