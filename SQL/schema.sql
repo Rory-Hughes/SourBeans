@@ -1,25 +1,33 @@
-CREATE DATABASE IF NOT EXISTS sourbeans
-  CHARACTER SET utf8mb4
-  COLLATE utf8mb4_unicode_ci;
-
-USE sourbeans;
+-- SourBeans schema (see ADR-0002)
+--
+-- Run by Spring at startup (spring.sql.init.mode=always), so every statement
+-- must be safe to re-run: tables use IF NOT EXISTS and seeds use
+-- ON DUPLICATE KEY UPDATE. The database itself is created by the JDBC URL
+-- (createDatabaseIfNotExist=true), so there is no CREATE DATABASE or USE here.
+-- Requires MySQL 8.0.19+ for the "AS seed" alias syntax in the seed inserts.
 
 -- -------------------
 -- Lookup tables    --
 -- -------------------
 
 CREATE TABLE IF NOT EXISTS statuses (
-  id   BIGINT       NOT NULL AUTO_INCREMENT,
-  name VARCHAR(50)  NOT NULL,
+  id         BIGINT      NOT NULL AUTO_INCREMENT,
+  code       VARCHAR(50) NOT NULL,                -- stable value used by code, e.g. IN_PROGRESS
+  label      VARCHAR(50) NOT NULL,                -- friendly text for the UI, e.g. In progress
+  sort_order INT         NOT NULL,
+  active     BOOLEAN     NOT NULL DEFAULT TRUE,   -- retire values instead of deleting them
   PRIMARY KEY (id),
-  CONSTRAINT uq_statuses_name UNIQUE (name)
+  CONSTRAINT uq_statuses_code UNIQUE (code)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS priorities (
-  id   BIGINT       NOT NULL AUTO_INCREMENT,
-  name VARCHAR(50)  NOT NULL,
+  id         BIGINT      NOT NULL AUTO_INCREMENT,
+  code       VARCHAR(50) NOT NULL,
+  label      VARCHAR(50) NOT NULL,
+  sort_order INT         NOT NULL,
+  active     BOOLEAN     NOT NULL DEFAULT TRUE,
   PRIMARY KEY (id),
-  CONSTRAINT uq_priorities_name UNIQUE (name)
+  CONSTRAINT uq_priorities_code UNIQUE (code)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS roles (
@@ -92,18 +100,34 @@ CREATE TABLE IF NOT EXISTS project_members (
 -- -------------------
 -- Seed data        --
 -- -------------------
+-- This file is the single source of truth for lookup rows. Every start
+-- re-asserts these values, so manual edits to them are overwritten.
+-- Code refers to rows by code (or name for roles), never by numeric id.
 
-INSERT IGNORE INTO statuses (name) VALUES
-  ('TODO'),
-  ('IN_PROGRESS'),
-  ('DONE');
+INSERT INTO statuses (code, label, sort_order, active) VALUES
+  ('TODO',        'To do',       1, TRUE),
+  ('IN_PROGRESS', 'In progress', 2, TRUE),
+  ('DONE',        'Done',        3, TRUE)
+AS seed
+ON DUPLICATE KEY UPDATE
+  label      = seed.label,
+  sort_order = seed.sort_order,
+  active     = seed.active;
 
-INSERT IGNORE INTO priorities (name) VALUES
-  ('UNDEFINED'),
-  ('LOW'),
-  ('MEDIUM'),
-  ('HIGH');
+INSERT INTO priorities (code, label, sort_order, active) VALUES
+  ('UNDEFINED', 'Undefined', 1, TRUE),
+  ('LOW',       'Low',       2, TRUE),
+  ('MEDIUM',    'Medium',    3, TRUE),
+  ('HIGH',      'High',      4, TRUE)
+AS seed
+ON DUPLICATE KEY UPDATE
+  label      = seed.label,
+  sort_order = seed.sort_order,
+  active     = seed.active;
 
-INSERT IGNORE INTO roles (name) VALUES
+INSERT INTO roles (name) VALUES
   ('OWNER'),
-  ('MEMBER');
+  ('MEMBER')
+AS seed
+ON DUPLICATE KEY UPDATE
+  name = seed.name;
