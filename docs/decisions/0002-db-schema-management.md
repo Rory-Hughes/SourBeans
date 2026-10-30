@@ -3,7 +3,6 @@
 **Status:** Proposed\
 **Date:** 2026-10-30\
 **Depends on:** ADR-0001\
-**Supersedes:** the earlier Flyway-based draft of ADR-0002
 
 ## Context
 
