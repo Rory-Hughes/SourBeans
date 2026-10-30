@@ -1,12 +1,12 @@
 # 04 — Milestones and Starter Backlog
 
-**Status:** Proposed work order. These are practice milestones, not official assignment deadlines.
+**Status:** Proposed work order aligned with [accepted ADR-0001](decisions/0001-initial-scope.md). These are practice milestones, not official assignment deadlines; GitHub Kanban controls live assignments.
 
 ## Milestone plan
 
 | Milestone       | Focus                                                                      | Demo exit criterion                                             |
 | --------------- | -------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| M0 — Kickoff    | Scope, GitHub repository, environment, app skeleton, MySQL connectivity    | Both developers run the same skeleton locally                   |
+| M0 — Kickoff    | Approved scope, GitHub repository, local MySQL setup, app skeleton         | Both developers run the same skeleton with their own local MySQL |
 | M1 — Projects   | Project persistence, REST CRUD, Thymeleaf forms, validation                | Create/update/list/delete an empty project from UI and API      |
 | M2 — Issues     | Issue persistence and project relationship, CRUD, status/priority, filters | Create and close an issue from UI; inspect same result via API  |
 | M3 — Security   | Users, login, membership rules, Spring Security, JWT, tests                | Authorized user succeeds; unknown/cross-project user is blocked |
@@ -16,35 +16,35 @@
 
 ## Starter GitHub Issues
 
-Copy each row into a new GitHub Issue, adding a description and acceptance checklist. `Rory` and `Josh` are suggested initial owners, not fixed assignments.
+Use these as candidate issues and sequencing guidance. Create/update them on the GitHub Kanban board, which is the **source of truth** for assignment, status and priorities; do not treat this document as a live assignment list.
 
-| ID       | Suggested issue title                                           | Milestone | Lead     | Depends on         |
-| -------- | --------------------------------------------------------------- | --------- | -------- | ------------------ |
-| SET-01   | Initialize Spring Boot + Maven repository                       | M0        | Rory     | —                  |
-| SET-02   | Configure local MySQL and Spring Data JPA                       | M0        | Josh     | SET-01             |
-| SET-03   | Establish package layout, DTO convention, and error responses   | M0        | Together | SET-01             |
-| PROJ-01  | Implement Project entity, repository and service                | M1        | Rory     | SET-02             |
-| PROJ-02  | Add Project REST endpoints and validation tests                 | M1        | Rory     | PROJ-01, SET-03    |
-| PROJ-03  | Add Thymeleaf project list/detail/create/edit forms             | M1        | Josh     | PROJ-01            |
-| ISSUE-01 | Implement Issue entity and Project→Issue relationship           | M2        | Josh     | PROJ-01            |
-| ISSUE-02 | Add Issue REST endpoints and validation tests                   | M2        | Josh     | ISSUE-01, SET-03   |
-| ISSUE-03 | Add Thymeleaf issue list/create/detail/edit forms               | M2        | Rory     | ISSUE-01           |
-| ISSUE-04 | Implement status/priority filters and empty-project delete rule | M2        | Together | ISSUE-02, ISSUE-03 |
-| QA-01    | Verify end-to-end CRUD and document manual test steps           | M2        | Together | M1, M2             |
-| AUTH-01  | Add User account and secure password storage                    | M3        | Rory     | QA-01              |
-| AUTH-02  | Add Spring Security form login and protected pages              | M3        | Rory     | AUTH-01            |
-| AUTH-03  | Add JWT issuance and bearer validation for API                  | M3        | Josh     | AUTH-01            |
-| AUTH-04  | Implement project membership authorization and negative tests   | M3        | Josh     | AUTH-02, AUTH-03   |
-| DEP-01   | Document and deploy secured app to Ubuntu VM                    | M4        | Together | AUTH-04            |
-| DEP-02   | Test restart, protected endpoints, and final walkthrough        | M4        | Together | DEP-01             |
+| ID | Candidate GitHub issue | Milestone | Depends on |
+| --- | --- | --- | --- |
+| SET-01 | Initialize Spring Boot + Maven repository | M0 | — |
+| SET-02 | Configure local MySQL and Spring Data JPA | M0 | SET-01 |
+| SET-03 | Establish package layout, DTO convention, and error responses | M0 | SET-01 |
+| PROJ-01 | Implement Project entity, repository and service | M1 | SET-02 |
+| PROJ-02 | Add Project REST endpoints and validation tests | M1 | PROJ-01, SET-03 |
+| PROJ-03 | Add Thymeleaf project list/detail/create/edit forms | M1 | PROJ-01 |
+| ISSUE-01 | Implement Issue entity and Project→Issue relationship | M2 | PROJ-01 |
+| ISSUE-02 | Add Issue REST endpoints and validation tests | M2 | ISSUE-01, SET-03 |
+| ISSUE-03 | Add Thymeleaf issue list/create/detail/edit forms | M2 | ISSUE-01 |
+| ISSUE-04 | Implement status/priority filters and empty-project delete rule | M2 | ISSUE-02, ISSUE-03 |
+| QA-01 | Verify end-to-end CRUD and document manual test steps | M2 | M1, M2 |
+| AUTH-01 | Add User account and secure password storage | M3 | QA-01 |
+| AUTH-02 | Add Spring Security form login and protected pages | M3 | AUTH-01 |
+| AUTH-03 | Add JWT issuance and bearer validation for API | M3 | AUTH-01 |
+| AUTH-04 | Implement project membership authorization and negative tests | M3 | AUTH-02, AUTH-03 |
+| DEP-01 | Document and deploy secured app to Ubuntu VM | M4 | AUTH-04 |
+| DEP-02 | Test restart, protected endpoints, and final walkthrough | M4 | DEP-01 |
 
 ## Suggested first week / first few sessions
 
-**Session 1 (together):** Review charter; decide name, DB setup, package name and MVP boundaries; create repository and issues.
+**Session 1 (together):** Review accepted ADR-0001 and charter, synchronize GitHub Kanban issues, and confirm both developers understand the agreed MVP. The project name, package, local MySQL, API prefix, and error format are already decided.
 
-**Session 2:** One developer initializes Spring Boot; the other documents local DB setup and the starter configuration. Pair to verify both machines can run it.
+**Session 2:** Follow the [local MySQL setup guide](06-local-development.md) independently; implement the Spring Boot skeleton and externalized datasource configuration. Pair to verify both machines can run it. Choose compatible version numbers together.
 
-**Session 3:** Rory starts project service/persistence; Josh sketches Thymeleaf screens and tests acceptance criteria. Agree interfaces before parallel implementation.
+**Session 3:** Take the next assignments from GitHub Kanban; agree service interfaces and acceptance tests before parallel implementation.
 
 **Session 4:** Swap/review PRs and do a shared integration demo. Fix any design disagreements in docs before proceeding to Issue CRUD.
 
