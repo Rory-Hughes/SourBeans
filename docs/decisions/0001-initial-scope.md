@@ -42,5 +42,5 @@ These choices provide practice with the course's core technologies and keep resp
 
 ## Approval
 
-- Rory : __________ / Date: __________
+- Rory : Rory Hughes / Date: 2026-10-29
 - Josh : Joshua Lynch / Date: 2026-10-29
