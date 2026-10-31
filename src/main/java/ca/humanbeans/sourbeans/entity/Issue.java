@@ -1,23 +1,27 @@
 package ca.humanbeans.sourbeans.entity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "issues")
 public class Issue {
 
     /////////////////
     // Constructor //
     /////////////////
 
-    public Issue(){};
+    public Issue() {}
 
     ////////////////
     // Properties //
@@ -26,52 +30,60 @@ public class Issue {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    public int issueId;
+    private Long issueId;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "project_id", nullable = false)
-    @ManyToOne
-    public Project project;
-    @Column(name = "title", nullable = false) public String issueTitle;
-    @Column(name = "description") public String issueDescription;
-    @Column(name = "status", nullable = false)
+    private Project project;
+
+    @Column(name = "title", nullable = false, length = 120)
+    private String issueTitle;
+
+    @Column(name = "description", length = 5000)
+    private String issueDescription;
+
     @Enumerated(EnumType.STRING)
-    public IssueStatus issueStatus;
-    @Column(name = "priority", nullable = false)
+    @Column(name = "status", nullable = false, length = 50)
+    private IssueStatus issueStatus;
+
     @Enumerated(EnumType.STRING)
-    public IssuePriority issuePriority;
-    @Column(name = "created_at", nullable = false)
-    public LocalDateTime issueCreationTime;
+    @Column(name = "priority", nullable = false, length = 50)
+    private IssuePriority issuePriority;
+
+    // Filled by the database default, so Hibernate never writes it.
+    @Column(name = "created_at", insertable = false, updatable = false)
+    private LocalDateTime issueCreationTime;
 
     /////////////////////////
     // Getters and Setters //
     /////////////////////////
 
-    // ID
-    public int getIssueId() { return issueId; }
-    public void setIssueId(int issueId) { this.issueId = issueId; }
-    // Project Ref
+    public Long getIssueId() { return issueId; }
+    public void setIssueId(Long issueId) { this.issueId = issueId; }
+
     public Project getProject() { return project; }
     public void setProject(Project project) { this.project = project; }
-    // Title
+
     public String getIssueTitle() { return issueTitle; }
     public void setIssueTitle(String issueTitle) {
         this.issueTitle = issueTitle;
     }
-    // Status
-    public IssueStatus getIssueStatus() { return issueStatus; }
-    public void setIssueStatus(IssueStatus issueStatus) {
-        this.issueStatus = issueStatus;
-    }
-    // Priority
-    public IssuePriority getIssuePriority() { return issuePriority; }
-    public void setIssuePriority(IssuePriority issuePriority) {
-        this.issuePriority = issuePriority;
-    }
-    // Description
+
     public String getIssueDescription() { return issueDescription; }
     public void setIssueDescription(String issueDescription) {
         this.issueDescription = issueDescription;
     }
-    // Creation Time
+
+    public IssueStatus getIssueStatus() { return issueStatus; }
+    public void setIssueStatus(IssueStatus issueStatus) {
+        this.issueStatus = issueStatus;
+    }
+
+    public IssuePriority getIssuePriority() { return issuePriority; }
+    public void setIssuePriority(IssuePriority issuePriority) {
+        this.issuePriority = issuePriority;
+    }
+
     public LocalDateTime getIssueCreationTime() { return issueCreationTime; }
     public void setIssueCreationTime(LocalDateTime issueCreationTime) {
         this.issueCreationTime = issueCreationTime;
@@ -80,8 +92,9 @@ public class Issue {
     /////////////
     // Methods //
     /////////////
+
     @Override
     public String toString() {
-        return "";
+        return "Issue{id=" + issueId + ", title=" + issueTitle + "}";
     }
 }
