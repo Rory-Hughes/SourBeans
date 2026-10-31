@@ -2,8 +2,9 @@ package ca.humanbeans.sourbeans.entity;
 public enum IssueStatus {
     // TODO: Review these are the actual enums expected
     Unknown,
-    OPEN,
-    CLOSED;
+    TODO,
+    IN_PROGRESS,
+    DONE;
     public static IssueStatus fromString(String s) {
         for (IssueStatus is : IssueStatus.values()) {
             if (is.toString().equalsIgnoreCase(s)) {
@@ -15,9 +16,11 @@ public enum IssueStatus {
     public static IssueStatus fromInteger(int n) {
         switch (n) {
         case 1:
-            return OPEN;
+            return TODO;
         case 2:
-            return CLOSED;
+            return IN_PROGRESS;
+        case 3:
+            return DONE;
         }
         return null;
     }
