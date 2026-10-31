@@ -1,81 +1,71 @@
-# 06 — Local Development Setup
+# Local development
 
-**Status:** Environment setup guidance for the approved starting point; Spring Boot application code has not yet been committed.  
-**Decision:** [ADR-0001](decisions/0001-initial-scope.md) — use a **local MySQL installation** on each developer's computer, rather than a container or a shared development database.
+Use Java 21 or 25 (Maven targets release 21), Spring Boot 4.1.2, and a local database. Rory uses MySQL 8.0.43 on **port 3307**. Josh uses MariaDB on Arch Linux; follow the [Arch installation guide](https://wiki.archlinux.org/title/MariaDB). Both drivers are included; the JDBC URL selects the driver and Hibernate detects the dialect. Josh's environment still needs verification.
 
-## 1. Install prerequisites on both computers
+## Provision the databases once
 
-- Install a compatible **JDK**, **MySQL Server**, and MySQL command-line client. Maven or the Maven Wrapper will be used when the application skeleton is created.
-- Together, record compatible Java, Spring Boot, and MySQL versions in the setup issue before generating the skeleton. **No exact version is approved in ADR-0001.**
-- Keep the MySQL server on the developer's own machine. Do not expose it on the internet or open unrestricted inbound database ports.
-- Verify the tools are available (`java -version`, `mysql --version`). Verify MySQL is running using the operating system's service tools or a successful local client login.
+1. Copy `SQL/setup.sql` to the git-ignored `local-setup.sql` in the repository root.
+2. Replace `change-me` in that local copy with your own application-user password. Never put a real password in the tracked original.
+3. Open an administrator client from the repository root. For Rory:
 
-Rory and Josh each complete the same procedure **independently**; database contents and credentials are not shared.
+   ```powershell
+   & 'C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe' --host=localhost --port=3307 --user=root --password
+   ```
 
-## 2. Create a local database and application user
+   On Arch, socket administrator authentication may use `sudo mariadb`.
+4. Run `SOURCE local-setup.sql;` in the database client. It creates `sourbeans` and `sourbeans_test` with explicit charset/collation and privileges restricted to those databases. Existing users keep their current password.
+5. Delete your local SQL copy afterward. Review and back up useful existing data before deliberately rebuilding any database.
 
-Using a MySQL administrator account, open the MySQL client (for example, `mysql -u root -p`), then run:
+## Configure credentials
 
-```sql
-CREATE DATABASE sourbeans
-  CHARACTER SET utf8mb4
-  COLLATE utf8mb4_unicode_ci;
+Copy `local.properties.example` to `local.properties` in the repository root. For Rory:
 
-CREATE USER 'sourbeans_app'@'localhost'
-  IDENTIFIED BY 'REPLACE_WITH_YOUR_OWN_STRONG_LOCAL_PASSWORD';
-
-GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, INDEX, DROP, REFERENCES
-  ON sourbeans.* TO 'sourbeans_app'@'localhost';
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3307/sourbeans
+spring.datasource.username=sourbeans_app
+spring.datasource.password=YOUR_LOCAL_PASSWORD
 ```
 
-The password above is a **placeholder**, not a password to reuse. Each developer chooses a distinct local password. The schema privileges permit early local development; production database permissions and migrations must be reviewed separately. Run creation commands only once per local instance; existing database/user names require a deliberate adjustment rather than blind recreation.
+For Josh use `jdbc:mariadb://localhost:3306/sourbeans` and his own credentials. Escape literal backslashes in Java properties values with another backslash. The ignored file is imported automatically. `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, and `SPRING_DATASOURCE_PASSWORD` environment variables override it. Keep credentials out of commits and chat.
 
-Verify access:
+The database URL is required in your local configuration; `application.properties` does not hard-code a MySQL URL. This project uses `local.properties` as its ignored environment configuration file. A `.env` file is not loaded automatically.
 
-```bash
-mysql -h localhost -u sourbeans_app -p sourbeans
-```
+## Build and run
 
-## 3. Configure Spring locally, without committing secrets
+Tests use the same credentials with a dedicated test URL. Their explicit test property source overrides ordinary development configuration, including `SPRING_DATASOURCE_URL`. Always point `SOURBEANS_TEST_DATASOURCE_URL` at `sourbeans_test`.
 
-The intended datasource values for each developer are:
-
-| Setting                      | Local value                             |
-| ---------------------------- | --------------------------------------- |
-| `SPRING_DATASOURCE_URL`      | `jdbc:mysql://localhost:3306/sourbeans` |
-| `SPRING_DATASOURCE_USERNAME` | `sourbeans_app`                         |
-| `SPRING_DATASOURCE_PASSWORD` | Your **own** local password             |
-
-For a temporary **PowerShell** terminal session:
+PowerShell for Rory:
 
 ```powershell
-$env:SPRING_DATASOURCE_URL = "jdbc:mysql://localhost:3306/sourbeans"
-$env:SPRING_DATASOURCE_USERNAME = "sourbeans_app"
-$env:SPRING_DATASOURCE_PASSWORD = "<your-own-local-password>"
+$env:SOURBEANS_TEST_DATASOURCE_URL = 'jdbc:mysql://localhost:3307/sourbeans_test'
+.\mvnw.cmd clean verify
+.\mvnw.cmd spring-boot:run
 ```
 
-For a temporary **Bash** terminal session:
+Bash for Josh:
 
 ```bash
-export SPRING_DATASOURCE_URL='jdbc:mysql://localhost:3306/sourbeans'
-export SPRING_DATASOURCE_USERNAME='sourbeans_app'
-export SPRING_DATASOURCE_PASSWORD='<your-own-local-password>'
+export SOURBEANS_TEST_DATASOURCE_URL='jdbc:mariadb://localhost:3306/sourbeans_test'
+./mvnw clean verify
+./mvnw spring-boot:run
 ```
 
-These values will be read by Spring Boot once the datasource dependency and application configuration exist. Environment settings only apply to the current terminal session unless deliberately persisted.
+In IntelliJ, use the repository root as the working directory and set the test URL variable in Maven Runner or the JUnit run configuration. Select Java 21 or 25 as runner JDK. Terminal wrapper invocations separately use `JAVA_HOME`.
 
-**Never commit** real credentials, `.env` files, `application-local.properties`/YAML containing secrets, or database dumps with sensitive information. The repository's `.gitignore` already excludes common local configuration files, but review `git status` before committing.
+The transactional integration test verifies a live connection, the test database name, both schema tables, and a JPA native query. No H2 or containers are used. Startup should initialize JPA and listen on localhost:8080; a 404 is expected until controllers exist.
 
-## 4. First integration checkpoint (after the skeleton exists)
+## Schema and failure checks
 
-1. Both developers can connect to their **own** MySQL database with the application account.
-2. Spring Boot starts with the agreed package `ca.humanbeans.sourbeans` and externally supplied datasource values.
-3. A simple JPA connectivity/persistence test passes independently on both machines.
-4. Tests and launch commands are added to the README **only after they have been run successfully** on the created project.
-5. Choose a schema migration / creation strategy together; **ADR-0001 does not prescribe JPA `ddl-auto` or a migration tool**. Do not assume a production-safe schema strategy from these local setup instructions.
+Per [ADR-0002](decisions/0002-db-schema-management.md), `src/main/resources/schema.sql` is now the canonical schema, moved from `SQL/schema.sql`. Spring runs it before JPA. Tables use `CREATE TABLE IF NOT EXISTS`; Hibernate uses `ddl-auto=validate`. Entity mapping validation becomes meaningful as later issues add entities. Record manual table changes in [schema-changes.md](schema-changes.md).
 
-Share repeatable **schema definitions or sanitized seed scripts**, when agreed, rather than sharing MySQL data directories or local credentials.
+Hibernate uses `PhysicalNamingStrategyStandardImpl` to preserve table and column names as mapped, including their casing. Use explicit mappings that match the canonical schema when adding entities, including on case-sensitive MariaDB installations.
 
-## 5. Security and later deployment
+Check startup against a confirmed unused port without stopping a database service:
 
-The first MVP is unauthenticated, so the application and its MySQL instance must remain local-only. Ubuntu deployment is a **later milestone**, after browser authentication, JWT API security, authorization checks, and security tests are complete. Production credentials, database accounts, network access, backups, and migration behavior need their own deployment plan.
+```powershell
+.\mvnw.cmd spring-boot:run "-Dspring-boot.run.arguments=--spring.datasource.url=jdbc:mysql://127.0.0.1:1/sourbeans"
+```
+
+Expect a connection error and nonzero result. An unknown database requires provisioning; access denied requires checking credentials and grants. Keep the database and unauthenticated app local. If Windows clean fails, stop running applications and check generated folders for a read-only attribute (the cause of an earlier local failure).
+
+References: [Spring initialization](https://docs.spring.io/spring-boot/how-to/data-initialization.html), [external configuration](https://docs.spring.io/spring-boot/reference/features/external-config.html), [MariaDB Connector/J](https://mariadb.com/docs/connectors/mariadb-connector-j/about-mariadb-connector-j).
