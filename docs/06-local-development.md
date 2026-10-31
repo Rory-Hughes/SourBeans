@@ -28,6 +28,8 @@ spring.datasource.password=YOUR_LOCAL_PASSWORD
 
 For Josh use `jdbc:mariadb://localhost:3306/sourbeans` and his own credentials. Escape literal backslashes in Java properties values with another backslash. The ignored file is imported automatically. `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, and `SPRING_DATASOURCE_PASSWORD` environment variables override it. Keep credentials out of commits and chat.
 
+The database URL is required in your local configuration; `application.properties` does not hard-code a MySQL URL. This project uses `local.properties` as its ignored environment configuration file. A `.env` file is not loaded automatically.
+
 ## Build and run
 
 Tests use the same credentials with a dedicated test URL. Their explicit test property source overrides ordinary development configuration, including `SPRING_DATASOURCE_URL`. Always point `SOURBEANS_TEST_DATASOURCE_URL` at `sourbeans_test`.
@@ -55,6 +57,8 @@ The transactional integration test verifies a live connection, the test database
 ## Schema and failure checks
 
 Per [ADR-0002](decisions/0002-db-schema-management.md), `src/main/resources/schema.sql` is now the canonical schema, moved from `SQL/schema.sql`. Spring runs it before JPA. Tables use `CREATE TABLE IF NOT EXISTS`; Hibernate uses `ddl-auto=validate`. Entity mapping validation becomes meaningful as later issues add entities. Record manual table changes in [schema-changes.md](schema-changes.md).
+
+Hibernate uses `PhysicalNamingStrategyStandardImpl` to preserve table and column names as mapped, including their casing. Use explicit mappings that match the canonical schema when adding entities, including on case-sensitive MariaDB installations.
 
 Check startup against a confirmed unused port without stopping a database service:
 
