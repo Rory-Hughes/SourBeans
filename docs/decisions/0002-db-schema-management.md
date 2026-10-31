@@ -1,6 +1,6 @@
 # ADR-0002: Database Schema Management, Reference Values and Test Data
 
-**Status:** Discussion / Pending Approval \
+**Status:** Accepted — approved by both developers on 2026-10-31 \
 **Date:** 2026-10-30\
 **Depends on:** ADR-0001\
 
@@ -133,18 +133,18 @@ Not applicable. Reference values are enum constants, so there are no rows to see
 
 - [x] Schema management: hand-written `schema.sql` run at startup, no Flyway or Liquibase
 - [x] Hibernate `ddl-auto=validate`
-- [ ] Databases created by a one-time `setup.sql` with explicit `utf8mb4` charset and collation, no `createDatabaseIfNotExist`
-- [ ] App user limited to the two databases, with no permission to create databases
+- [x] Databases created by a one-time `setup.sql` with explicit `utf8mb4` charset and collation, no `createDatabaseIfNotExist`
+- [x] App user limited to the two databases, with no permission to create databases
 - [x] Status, priority and role values as Java enums stored as strings, with label and sort order in the enum
 - [x] Retired enum values stay in the code and are hidden from dropdowns
-- [ ] Release 1 schema only; `users` and `project_members` added when Release 2 starts
+- [x] Release 1 schema only; `users` and `project_members` added when Release 2 starts
 - [x] Existing local databases dropped, then rebuilt with `setup.sql` and the app
 - [x] Separate `sourbeans_test` database, `@Transactional` by default
 - [x] Credentials in a git-ignored `local.properties`, with a committed `.example`
 - [x] Schema changes tracked in the PR description and `docs/schema-changes.md`
-- [ ] Review the final `schema.sql` and `setup.sql` against these decisions before merging
+- [x] Review the final `schema.sql` and `setup.sql` against these decisions before merging
 
 ## Approval
 
-- Rory: _________ / Date: _________
+- Rory: Rory Hughes / Date: 2026-10-31
 - Josh: Joshua Lynch / Date: 2026-10-30
