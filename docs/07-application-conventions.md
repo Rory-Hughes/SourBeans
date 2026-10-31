@@ -6,16 +6,16 @@ This is the shared implementation convention for feature work, following ADR-000
 
 All packages live under `ca.humanbeans.sourbeans`. Create feature classes in these packages as needed; do not add placeholder services or entities.
 
-| Package | Responsibility |
-| --- | --- |
-| `controller.api` | `@RestController` JSON routes under `/api`; validate requests, call services, map results, set HTTP status and Location headers |
+| Package          | Responsibility                                                                                                                       |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `controller.api` | `@RestController` JSON routes under `/api`; validate requests, call services, map results, set HTTP status and Location headers      |
 | `controller.web` | `@Controller` Thymeleaf routes; bind forms, display validation messages, call the same services, redirect after successful mutations |
-| `service` | Business operations and transaction boundaries; enforce domain rules and throw domain exceptions; no HTTP or template concerns |
-| `repository` | Spring Data persistence access; called by services, never directly by controllers |
-| `entity` | JPA mappings and persistence state; never used as a request body or serialized API response |
-| `dto` | Immutable request/response records and explicit entity-to-DTO mapping helpers |
-| `config` | Framework configuration; no business logic or credentials in source |
-| `exception` | Shared domain exceptions and API exception advice |
+| `service`        | Business operations and transaction boundaries; enforce domain rules and throw domain exceptions; no HTTP or template concerns       |
+| `repository`     | Spring Data persistence access; called by services, never directly by controllers                                                    |
+| `entity`         | JPA mappings and persistence state; never used as a request body or serialized API response                                          |
+| `dto`            | Immutable request/response records and explicit entity-to-DTO mapping helpers                                                        |
+| `config`         | Framework configuration; no business logic or credentials in source                                                                  |
+| `exception`      | Shared domain exceptions and API exception advice                                                                                    |
 
 Thymeleaf templates live under `src/main/resources/templates`; static assets under `static`. API advice is scoped to `controller.api` (including subpackages), so HTML form errors remain part of MVC rendering. Keep web controllers out of that package. Do not add an API controller that serves an HTML route.
 
@@ -42,25 +42,25 @@ Constraint messages must be static, client-safe descriptions. Do not interpolate
 
 ```json
 {
-  "type": "about:blank",
-  "title": "Bad Request",
-  "status": 400,
-  "detail": "Request validation failed.",
-  "instance": "/api/projects",
-  "errors": [{"field": "name", "message": "must not be blank"}]
+    "type": "about:blank",
+    "title": "Bad Request",
+    "status": 400,
+    "detail": "Request validation failed.",
+    "instance": "/api/projects",
+    "errors": [{ "field": "name", "message": "must not be blank" }]
 }
 ```
 
 The explicit SET-03 extension is `errors`: a sorted, deduplicated array of `{field, message}` for request-body field constraint failures. It never contains rejected values. Other errors omit it. MVC method-parameter validation uses the standard five fields with a generic 400 detail. `instance` is the request path, excluding query parameters. Titles follow the HTTP status reason phrase.
 
-| Condition | Status | Detail policy |
-| --- | --- | --- |
-| Invalid request body fields | 400 | `Request validation failed.` plus field errors |
-| Malformed/missing body, invalid enum/type, missing parameter, parameter constraints | 400 | Generic invalid/malformed request message |
-| `ResourceNotFoundException` | 404 | Generic missing-resource message |
-| `ResourceConflictException` | 409 | Generic conflict with resource state |
-| Unsupported method/content type | 405 / 415 | Safe generic detail; preserve protocol headers such as Allow |
-| Unexpected exception or framework server error | 500 (or framework's server status) | Generic server-error message; no exception message, stack trace or internal data |
+| Condition                                                                           | Status                             | Detail policy                                                                    |
+| ----------------------------------------------------------------------------------- | ---------------------------------- | -------------------------------------------------------------------------------- |
+| Invalid request body fields                                                         | 400                                | `Request validation failed.` plus field errors                                   |
+| Malformed/missing body, invalid enum/type, missing parameter, parameter constraints | 400                                | Generic invalid/malformed request message                                        |
+| `ResourceNotFoundException`                                                         | 404                                | Generic missing-resource message                                                 |
+| `ResourceConflictException`                                                         | 409                                | Generic conflict with resource state                                             |
+| Unsupported method/content type                                                     | 405 / 415                          | Safe generic detail; preserve protocol headers such as Allow                     |
+| Unexpected exception or framework server error                                      | 500 (or framework's server status) | Generic server-error message; no exception message, stack trace or internal data |
 
 The shared domain exceptions have no arbitrary client-message constructor. Do not expose raw persistence exception messages or map every database integrity failure to a client conflict. Future resource-specific safe messages must be deliberately designed and tested. Unexpected API failures log only the exception class, not arbitrary exception/request contents.
 
