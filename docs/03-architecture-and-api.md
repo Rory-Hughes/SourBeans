@@ -2,6 +2,8 @@
 
 **Status:** Design sketch aligned to [accepted ADR-0001](decisions/0001-initial-scope.md); application code does not exist yet. Unspecified implementation details remain open.
 
+For implemented package, DTO, validation and API error conventions, see [SET-03 application conventions](07-application-conventions.md). Feature models below remain illustrative where superseded by accepted ADRs.
+
 ## Agreed technical direction
 
 ```mermaid

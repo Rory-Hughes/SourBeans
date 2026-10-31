@@ -74,6 +74,7 @@ Open http://localhost:8080; a 404 is expected until controllers are added. Stop 
 
 ## Documentation
 
+- [Application conventions](docs/07-application-conventions.md) — packages, DTOs, validation and shared API errors.
 - [Project charter](docs/01-project-charter.md) — project purpose, release boundaries, success criteria.
 - [Requirements and user stories](docs/02-requirements.md) — functional behavior and acceptance criteria.
 - [Architecture, data model, and API](docs/03-architecture-and-api.md) — layers, entities, endpoint sketch, Problem Details responses.
