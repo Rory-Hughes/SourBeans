@@ -1,25 +1,23 @@
 package ca.humanbeans.sourbeans.entity;
 public enum IssueStatus {
     // TODO: Review these are the actual enums expected
-    fill,
-    these,
-    in;
-    public static IssuePriority fromString(String s) {
-        for (IssuePriority ip : IssuePriority.values()) {
-            if (ip.toString().equalsIgnoreCase(s)) {
-                return ip;
+    Unknown,
+    OPEN,
+    CLOSED;
+    public static IssueStatus fromString(String s) {
+        for (IssueStatus is : IssueStatus.values()) {
+            if (is.toString().equalsIgnoreCase(s)) {
+                return is;
             }
         }
         return null;
     }
-    public static IssuePriority fromInteger(int n) {
+    public static IssueStatus fromInteger(int n) {
         switch (n) {
         case 1:
-            return LOW;
+            return OPEN;
         case 2:
-            return MEDIUM;
-        case 3:
-            return HIGH;
+            return CLOSED;
         }
         return null;
     }

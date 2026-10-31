@@ -6,8 +6,9 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import java.time.LocalDateTime;
-import java.util.EnumMap;
 
 @Entity
 public class Issue {
@@ -25,13 +26,15 @@ public class Issue {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    int id;
-    // TODO: MAKE THIS A JOIN COLUMN
-    @Column(name = "project_id", nullable = false) int projectId;
+    int issueId;
+    @JoinColumn(name = "projectId", nullable = false)
+    @ManyToOne
+    Project project;
     @Column(name = "title", nullable = false) String issueTitle;
     @Column(name = "description") String issueDescription;
-    // TODO: MAKE THIS USE ENUMS
-    @Column(name = "status", nullable = false) IssueStatus issueStatus;
+    @Column(name = "status", nullable = false)
+    @Enumerated(EnumType.ORDINAL)
+    IssueStatus issueStatus;
     @Column(name = "priority", nullable = false)
     @Enumerated(EnumType.ORDINAL)
     IssuePriority issuePriority;

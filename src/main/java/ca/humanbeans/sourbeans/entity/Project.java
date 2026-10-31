@@ -5,11 +5,19 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 public class Project {
 
+    /////////////////
+    // Constructor //
+    /////////////////
+
+    public Project(){};
     ////////////////
     // Properties //
     ////////////////
@@ -18,7 +26,9 @@ public class Project {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     int projectId;
-    @Column(name = "name", nullable = false) String projectName;
+    @OneToMany(mappedBy = "issueId", orphanRemoval = true)
+    @Column(name = "name", nullable = false)
+    List<Issue> issues;
     @Column(name = "description") String projectDescription;
     @Column(name = "created_at", nullable = false)
     LocalDateTime projectCreationTime;
