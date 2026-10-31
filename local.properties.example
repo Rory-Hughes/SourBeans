@@ -1,0 +1,6 @@
+# Copy to local.properties and enter your own local credentials.
+# MySQL (Rory): jdbc:mysql://localhost:3306/sourbeans
+# MariaDB (Josh): jdbc:mariadb://localhost:3306/sourbeans
+spring.datasource.url=jdbc:mysql://localhost:3306/sourbeans
+spring.datasource.username=sourbeans_app
+spring.datasource.password=REPLACE_WITH_YOUR_LOCAL_PASSWORD

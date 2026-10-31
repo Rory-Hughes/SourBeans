@@ -2,7 +2,7 @@
 
 > A small, GitHub-inspired issue tracker built by two student developers to practise enterprise Java development. This is independent practice, not a course assignment submission.
 
-**Status:** Planning — initial scope approved; no application code yet  
+**Status:** Application skeleton implemented; local database integration in progress
 **Developers:** Rory Hughes and Joshua Lynch  
 **Repository owner:** Rory Hughes  
 **Architecture decision:** [ADR-0001 — Initial Scope and Architectural Starting Point](docs/decisions/0001-initial-scope.md) (approved by both developers, 2026-10-29)
@@ -56,21 +56,21 @@ See [ADR-0001](docs/decisions/0001-initial-scope.md) for the full agreement and 
 
 ## Technology stack
 
-**Initial:** Java (compatible JDK version to be agreed), Spring Boot, Spring MVC, Thymeleaf, Bean Validation, Spring Data JPA, local MySQL, Maven, Git/GitHub.
+**Initial:** Java 21 target (JDK 21 or 25), Spring Boot 4.1.2, Spring MVC, Thymeleaf, Bean Validation, Spring Data JPA, local MySQL (Rory) / MariaDB (Josh), Maven Wrapper, Git/GitHub.
 
 **Later:** Spring Security, browser sessions, JWT-protected REST API, Ubuntu VM deployment.
 
-Exact version numbers and schema-migration tooling have **not** yet been approved.
+Schema management follows [ADR-0002](docs/decisions/0002-db-schema-management.md): startup SQL scripts and Hibernate validation, without a migration tool.
 
 ## Getting started
 
-The Spring Boot project skeleton and build scripts have not been created yet. The following is **environment preparation**, not a working application launch procedure:
+1. Install JDK 21 or 25 and a local database server (Rory: MySQL 8.0.43, port 3307; Josh: MariaDB).
+2. Follow [Local Development Setup](docs/06-local-development.md) to run `SQL/setup.sql` through an ignored local copy, creating `sourbeans`, `sourbeans_test`, and your application account.
+3. Copy `local.properties.example` to `local.properties` and enter your own connection settings. Never commit credentials.
+4. Set `SOURBEANS_TEST_DATASOURCE_URL` for your database server and port, as described in the guide.
+5. On Windows run `.\mvnw.cmd clean verify`, then `.\mvnw.cmd spring-boot:run`. On Linux use `./mvnw clean verify` and `./mvnw spring-boot:run`.
 
-1. Both developers install a compatible JDK and **MySQL locally**. Choose matching major versions together in the setup issue; Docker is not part of the approved starting point.
-2. Follow [06 — Local Development Setup](docs/06-local-development.md) to create each developer's own `sourbeans` database, local MySQL account, and untracked configuration.
-3. Use the agreed Java package `ca.humanbeans.sourbeans` when generating the Spring Boot project.
-4. Configure Spring's datasource via local environment variables. Never commit passwords, local profiles containing secrets, or database dumps.
-5. Use the GitHub Kanban board to select/assign setup issues and open reviewed pull requests. Once the application skeleton exists, this README will gain verified build, test, and run commands.
+Open http://localhost:8080; a 404 is expected until controllers are added. Stop the app with Ctrl+C. SET-02 passed local MySQL integration tests and startup checks, including Rory's IntelliJ verification. Josh's MariaDB verification remains pending.
 
 ## Documentation
 

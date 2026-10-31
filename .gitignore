@@ -8,6 +8,8 @@
 *.class
 
 # Local secrets and environment files
+/local.properties
+/local-setup.sql
 .env
 .env.*
 !.env.example
