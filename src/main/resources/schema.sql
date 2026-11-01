@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS projects (
   name        VARCHAR(80)   NOT NULL,
   description VARCHAR(1000) NULL,
   created_at  TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   CONSTRAINT verify_name_length CHECK (CHAR_LENGTH(TRIM( name )) >= 3)-- Minimum 3 chars trimmed for whitespace
 ) ENGINE=InnoDB;
@@ -31,6 +32,7 @@ CREATE TABLE IF NOT EXISTS issues (
   status      VARCHAR(50)   NOT NULL DEFAULT 'OPEN',
   priority    VARCHAR(50)   NOT NULL DEFAULT 'MEDIUM',
   created_at  TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   CONSTRAINT verify_title_length CHECK (CHAR_LENGTH(TRIM(title)) >= 5), -- Minimum 5 chars trimmed for whitespace
   CONSTRAINT fk_issues_project
