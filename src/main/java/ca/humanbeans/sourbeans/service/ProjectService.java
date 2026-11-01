@@ -1,10 +1,9 @@
 package ca.humanbeans.sourbeans.service;
-
 import ca.humanbeans.sourbeans.entity.*;
+import ca.humanbeans.sourbeans.exception.ResourceNotFoundException;
 import ca.humanbeans.sourbeans.repository.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,6 +15,7 @@ public class ProjectService {
         this.issueRepo = inIssueRepo;
         this.projectRepo = inProjectRepo;
     };
+
     /////////////////
     // ProjectRepo //
     /////////////////
@@ -28,14 +28,16 @@ public class ProjectService {
         return returnList;
     }
     public Project getProjectById(Long id) {
-        Optional<Project> result = projectRepo.findById(id);
-        if (result == null) {
-            throw new Exception("Die");
-        }
+        Project result = projectRepo.findById(id).orElseThrow(
+            () -> new ResourceNotFoundException());
+        return result;
     }
     // POST
+    public void addProject(Project projectToAdd) {}
     // PUT
+    public void updateProject(Project projectToUpdate) {}
     // DELETE
+    public void deleteProject(Project projectToDelete) {}
 
     ///////////////
     // issueRepo //
@@ -52,8 +54,11 @@ public class ProjectService {
         return inProject.getIssues();
     }
     // POST
+    public void addIssue(Project parent, Issue issueToAdd) {}
     // PUT
+    public void updateIssue(Project parent, Issue issueToUpdate) {}
     // DELETE
+    public void deleteIssue(Project parent, Issue issueToDelete) {}
     /////////////
     // Helpers //
     /////////////
