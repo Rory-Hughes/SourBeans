@@ -96,10 +96,8 @@ public class ProjectService {
             if (!projectExists(projectToUpdate)) {
                 throw new ResourceNotFoundException();
             }
-            // NOTE: Im not so sure if this is how this works..
             projectRepo.save(projectToUpdate);
         } catch (ResourceNotFoundException rnf) {
-            // TODO: This may be the way to do this.
             throw rnf;
         } catch (Exception e) {
             // TODO: handle exception
@@ -109,13 +107,15 @@ public class ProjectService {
     // DELETE
     public void deleteProject(Long projectIdToDelete) {
         try {
+            if (projectIdToDelete == null) {
+                // NOTE: This seems like a case for a custom exception
+                throw new java.lang.IllegalArgumentException();
+            }
             if (!projectExists(projectIdToDelete)) {
                 throw new ResourceNotFoundException();
             }
-            // NOTE: Im not so sure if this is how this works..
             projectRepo.deleteById(projectIdToDelete);
         } catch (ResourceNotFoundException rnf) {
-            // TODO: This may be the way to do this.
             throw rnf;
         } catch (Exception e) {
             // TODO: handle exception
@@ -127,13 +127,13 @@ public class ProjectService {
             String strId = String.valueOf(projectIdToDelete);
             Long parsedId = Long.parseLong(strId);
             if (!projectExists(parsedId)) {
-                throw new ResourceConflictException();
+                throw new ResourceNotFoundException();
             }
             // NOTE: Im not so sure if this is how this works..
             projectRepo.deleteById(parsedId);
-        } catch (ResourceConflictException rce) {
+        } catch (ResourceConflictException rnf) {
             // TODO: This may be the way to do this.
-            throw rce;
+            throw rnf;
         } catch (Exception e) {
             // TODO: handle exception
             throw e;
