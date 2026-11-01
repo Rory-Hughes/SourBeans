@@ -1,5 +1,6 @@
 package ca.humanbeans.sourbeans.service;
 import ca.humanbeans.sourbeans.entity.*;
+import ca.humanbeans.sourbeans.exception.ResourceConflictException;
 import ca.humanbeans.sourbeans.exception.ResourceNotFoundException;
 import ca.humanbeans.sourbeans.repository.*;
 import java.util.ArrayList;
@@ -53,6 +54,8 @@ public class ProjectService {
             Project result = projectRepo.findById(parsedId).orElseThrow(
                 () -> new ResourceNotFoundException());
             return result;
+        } catch (ResourceNotFoundException rnfe) {
+            throw rnfe;
         } catch (Exception e) {
             // TODO: handle exception
             throw e;
@@ -65,17 +68,108 @@ public class ProjectService {
                 () -> new ResourceNotFoundException());
             return result;
 
+        } catch (ResourceNotFoundException rnfe) {
+            throw rnfe;
         } catch (Exception e) {
             // TODO: handle exception
             throw e;
         }
     }
     // POST
-    public void addProject(Project projectToAdd) {}
+    public void addProject(Project projectToAdd) {
+        try {
+            if (projectExists(projectToAdd)) {
+                throw new ResourceConflictException();
+            }
+            projectRepo.save(projectToAdd);
+        } catch (ResourceConflictException rce) {
+            // TODO: This may be the way to do this.
+            throw rce;
+        } catch (Exception e) {
+            // TODO: handle exception
+            throw e;
+        }
+    }
     // PUT
-    public void updateProject(Long projectIdToUpdate) {}
+    public void updateProject(Project projectToUpdate) {
+        try {
+            if (!projectExists(projectToUpdate)) {
+                throw new ResourceConflictException();
+            }
+            // NOTE: Im not so sure if this is how this works..
+            projectRepo.save(projectToUpdate);
+        } catch (ResourceConflictException rce) {
+            // TODO: This may be the way to do this.
+            throw rce;
+        } catch (Exception e) {
+            // TODO: handle exception
+            throw e;
+        }
+    }
     // DELETE
-    public void deleteProject(Long projectIdToDelete) {}
+    public void deleteProject(Long projectIdToDelete) {
+        try {
+            if (!projectExists(projectIdToDelete)) {
+                throw new ResourceConflictException();
+            }
+            // NOTE: Im not so sure if this is how this works..
+            projectRepo.deleteById(projectIdToDelete);
+        } catch (ResourceConflictException rce) {
+            // TODO: This may be the way to do this.
+            throw rce;
+        } catch (Exception e) {
+            // TODO: handle exception
+            throw e;
+        }
+    }
+    public void deleteProject(int projectIdToDelete) {
+        try {
+            String strId = String.valueOf(projectIdToDelete);
+            Long parsedId = Long.parseLong(strId);
+            if (!projectExists(parsedId)) {
+                throw new ResourceConflictException();
+            }
+            // NOTE: Im not so sure if this is how this works..
+            projectRepo.deleteById(parsedId);
+        } catch (ResourceConflictException rce) {
+            // TODO: This may be the way to do this.
+            throw rce;
+        } catch (Exception e) {
+            // TODO: handle exception
+            throw e;
+        }
+    }
+    public void deleteProject(String projectIdToDelete) {
+        try {
+            Long parsedId = Long.parseLong(projectIdToDelete);
+            if (!projectExists(parsedId)) {
+                throw new ResourceConflictException();
+            }
+            // NOTE: Im not so sure if this is how this works..
+            projectRepo.deleteById(parsedId);
+        } catch (ResourceConflictException rce) {
+            // TODO: This may be the way to do this.
+            throw rce;
+        } catch (Exception e) {
+            // TODO: handle exception
+            throw e;
+        }
+    }
+    public void deleteProject(Project projectToDelete) {
+        try {
+            if (!projectExists(projectToDelete)) {
+                throw new ResourceConflictException();
+            }
+            // NOTE: Im not so sure if this is how this works..
+            projectRepo.delete(projectToDelete);
+        } catch (ResourceConflictException rce) {
+            // TODO: This may be the way to do this.
+            throw rce;
+        } catch (Exception e) {
+            // TODO: handle exception
+            throw e;
+        }
+    }
 
     ///////////////
     // issueRepo //
