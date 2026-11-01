@@ -27,17 +27,18 @@ public class ProjectService {
         projectRepo.findAll().forEach(returnList::add);
         return returnList;
     }
-    public Project getProjectById(Long id) {
-        Project result = projectRepo.findById(id).orElseThrow(
-            () -> new ResourceNotFoundException());
+    public Project getProjectById(Long projectIdToFind) {
+        Project result =
+            projectRepo.findById(projectIdToFind)
+                .orElseThrow(() -> new ResourceNotFoundException());
         return result;
     }
     // POST
-    public void addProject(Project projectToAdd) {}
+    public void addProject(Long projectIdToAdd) {}
     // PUT
-    public void updateProject(Project projectToUpdate) {}
+    public void updateProject(Long projectIdToUpdate) {}
     // DELETE
-    public void deleteProject(Project projectToDelete) {}
+    public void deleteProject(Long projectIdToDelete) {}
 
     ///////////////
     // issueRepo //
@@ -50,15 +51,15 @@ public class ProjectService {
         issueRepo.findAll().forEach(returnList::add);
         return returnList;
     }
-    public List<Issue> getAllIssuesFromProject(Project inProject) {
-        return inProject.getIssues();
+    public List<Issue> getAllIssuesFromProject(Long projectId) {
+        return getProjectById(projectId).getIssues();
     }
     // POST
-    public void addIssue(Project parent, Issue issueToAdd) {}
+    public void addIssue(Long parentId, Issue issueToAdd) {}
     // PUT
-    public void updateIssue(Project parent, Issue issueToUpdate) {}
+    public void updateIssue(Long parentId, Issue issueToUpdate) {}
     // DELETE
-    public void deleteIssue(Project parent, Issue issueToDelete) {}
+    public void deleteIssue(Long parentId, Issue issueToDelete) {}
     /////////////
     // Helpers //
     /////////////
