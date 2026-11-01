@@ -94,13 +94,13 @@ public class ProjectService {
     public void updateProject(Project projectToUpdate) {
         try {
             if (!projectExists(projectToUpdate)) {
-                throw new ResourceConflictException();
+                throw new ResourceNotFoundException();
             }
             // NOTE: Im not so sure if this is how this works..
             projectRepo.save(projectToUpdate);
-        } catch (ResourceConflictException rce) {
+        } catch (ResourceNotFoundException rnf) {
             // TODO: This may be the way to do this.
-            throw rce;
+            throw rnf;
         } catch (Exception e) {
             // TODO: handle exception
             throw e;
@@ -110,13 +110,13 @@ public class ProjectService {
     public void deleteProject(Long projectIdToDelete) {
         try {
             if (!projectExists(projectIdToDelete)) {
-                throw new ResourceConflictException();
+                throw new ResourceNotFoundException();
             }
             // NOTE: Im not so sure if this is how this works..
             projectRepo.deleteById(projectIdToDelete);
-        } catch (ResourceConflictException rce) {
+        } catch (ResourceNotFoundException rnf) {
             // TODO: This may be the way to do this.
-            throw rce;
+            throw rnf;
         } catch (Exception e) {
             // TODO: handle exception
             throw e;
@@ -143,13 +143,13 @@ public class ProjectService {
         try {
             Long parsedId = Long.parseLong(projectIdToDelete);
             if (!projectExists(parsedId)) {
-                throw new ResourceConflictException();
+                throw new ResourceNotFoundException();
             }
             // NOTE: Im not so sure if this is how this works..
             projectRepo.deleteById(parsedId);
-        } catch (ResourceConflictException rce) {
+        } catch (ResourceNotFoundException rnf) {
             // TODO: This may be the way to do this.
-            throw rce;
+            throw rnf;
         } catch (Exception e) {
             // TODO: handle exception
             throw e;
@@ -158,13 +158,13 @@ public class ProjectService {
     public void deleteProject(Project projectToDelete) {
         try {
             if (!projectExists(projectToDelete)) {
-                throw new ResourceConflictException();
+                throw new ResourceNotFoundException();
             }
             // NOTE: Im not so sure if this is how this works..
             projectRepo.delete(projectToDelete);
-        } catch (ResourceConflictException rce) {
+        } catch (ResourceNotFoundException rnf) {
             // TODO: This may be the way to do this.
-            throw rce;
+            throw rnf;
         } catch (Exception e) {
             // TODO: handle exception
             throw e;
