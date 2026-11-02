@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 public class ProjectService {
     private final IssueRepository issueRepo;
     private final ProjectRepository projectRepo;
@@ -88,7 +89,6 @@ public class ProjectService {
         }
     }
     // DELETE
-    @Transactional
     public void deleteProject(Long projectIdToDelete) {
         try {
             if (projectIdToDelete == null) {
