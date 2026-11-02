@@ -603,7 +603,7 @@ class ProjectServiceTests {
             assertEquals("Durable", found.getProjectName());
             assertEquals("Committed for real", found.getProjectDescription());
         } finally {
-            // This test really commits, so clean up after ourselves.
+            // This test commits so clean up is needed
             if (id != null) {
                 if (!TestTransaction.isActive()) {
                     TestTransaction.start();
