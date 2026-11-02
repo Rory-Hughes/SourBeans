@@ -8,11 +8,12 @@ Use Java 21 or 25 (Maven targets release 21), Spring Boot 4.1.2, and a local dat
 2. Replace `change-me` in that local copy with your own application-user password. Never put a real password in the tracked original.
 3. Open an administrator client from the repository root. For Rory:
 
-   ```powershell
-   & 'C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe' --host=localhost --port=3307 --user=root --password
-   ```
+    ```powershell
+    & 'C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe' --host=localhost --port=3307 --user=root --password
+    ```
 
-   On Arch, socket administrator authentication may use `sudo mariadb`.
+    On Arch, socket administrator authentication may use `sudo mariadb`.
+
 4. Run `SOURCE local-setup.sql;` in the database client. It creates `sourbeans` and `sourbeans_test` with explicit charset/collation and privileges restricted to those databases. Existing users keep their current password.
 5. Delete your local SQL copy afterward. Review and back up useful existing data before deliberately rebuilding any database.
 
@@ -37,7 +38,7 @@ Tests use the same credentials with a dedicated test URL. Their explicit test pr
 PowerShell for Rory:
 
 ```powershell
-$env:SOURBEANS_TEST_DATASOURCE_URL = 'jdbc:mysql://localhost:3307/sourbeans_test'
+$env:SOURBEANS_TEST_DATASOURCE_URL = 'jdbc:mysql://localhost:3306/sourbeans_test'
 .\mvnw.cmd clean verify
 .\mvnw.cmd spring-boot:run
 ```

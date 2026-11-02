@@ -12,7 +12,7 @@ flowchart TD
     Client[REST client / JSON] --> API[REST Controllers]
     Web --> Services[ProjectService / IssueService]
     API --> Services
-    Services --> Repos[Spring Data JPA Repositories]
+    Services --> Repos[Spring Data Spring CrudRepositories]
     Repos --> DB[(MySQL)]
     Auth[Spring Security — Release 2] -.-> Web
     Auth -.-> API
@@ -21,7 +21,7 @@ flowchart TD
 - `controller.web`: server-rendered HTML controller methods.
 - `controller.api`: JSON endpoints and HTTP status handling.
 - `service`: validation beyond simple field rules, project/issue business operations, authorization later.
-- `repository`: `JpaRepository` access to entities.
+- `repository`: `CrudRepository` access to entities.
 - `entity`: JPA mappings and persistence fields.
 - `dto`: inputs and responses, separate from JPA entity objects.
 - `templates`: Thymeleaf views.
