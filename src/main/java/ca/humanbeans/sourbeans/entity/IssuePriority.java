@@ -1,7 +1,5 @@
 package ca.humanbeans.sourbeans.entity;
 public enum IssuePriority {
-    // TODO: Review these are the actual enums expected
-    Unknown,
     LOW,
     MEDIUM,
     HIGH;
