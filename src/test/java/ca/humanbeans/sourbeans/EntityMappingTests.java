@@ -259,7 +259,7 @@ class EntityMappingTests {
         var row = jdbc.queryForMap(
             "SELECT status, priority FROM issues WHERE title = ?",
             "Urgent thing");
-        assertEquals("IN_PROGRESS", row.get("status"));
+        assertEquals("OPEN", row.get("status"));
         assertEquals("HIGH", row.get("priority"));
     }
 

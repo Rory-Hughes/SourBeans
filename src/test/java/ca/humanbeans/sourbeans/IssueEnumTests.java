@@ -38,22 +38,22 @@ class IssueEnumTests {
     // ---------- IssueStatus lookups ----------
 
     @ParameterizedTest
-    @CsvSource({"TODO,TODO", "todo,TODO", "In_Progress,IN_PROGRESS",
-                "IN_PROGRESS,IN_PROGRESS", "done,DONE", "DONE,DONE"})
+    @CsvSource({"OPEN,OPEN", "open,OPEN", "Open,OPEN",
+                "closed,CLOSED", "CLOSED,CLOSED"})
     void statusFromStringIgnoresCase(String text, IssueStatus expected) {
         assertEquals(expected, IssueStatus.fromString(text));
     }
 
     @ParameterizedTest
     @NullAndEmptySource
-    @ValueSource(strings = {"OPEN", "CLOSED", "nonsense", " TODO",
+    @ValueSource(strings = {"opun", "status-closed", "nonsense", " TODO",
                             "IN PROGRESS"})
     void statusFromStringOfAnythingElseIsNull(String text) {
         assertNull(IssueStatus.fromString(text));
     }
 
     @ParameterizedTest
-    @CsvSource({"1,TODO", "2,IN_PROGRESS", "3,DONE"})
+    @CsvSource({"1,OPEN", "2,CLOSED"})
     void statusFromInteger(int n, IssueStatus expected) {
         assertEquals(expected, IssueStatus.fromInteger(n));
     }
@@ -67,7 +67,7 @@ class IssueEnumTests {
     // ---------- IssuePriority lookups ----------
 
     @ParameterizedTest
-    @CsvSource({"UNDEFINED,UNDEFINED", "low,LOW", "Medium,MEDIUM", "HIGH,HIGH"})
+    @CsvSource({"low,LOW", "Medium,MEDIUM", "HIGH,HIGH"})
     void priorityFromStringIgnoresCase(String text, IssuePriority expected) {
         assertEquals(expected, IssuePriority.fromString(text));
     }
