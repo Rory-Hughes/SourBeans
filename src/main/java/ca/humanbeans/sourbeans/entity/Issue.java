@@ -11,6 +11,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 @Entity
@@ -34,11 +36,15 @@ public class Issue {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "project_id", nullable = false)
+    @NotBlank
     private Project project;
 
     @Column(name = "title", nullable = false, length = 120)
+    @NotBlank
+    @Size(min = 5, max = 120)
     private String issueTitle;
 
+    @Size(max = 5000)
     @Column(name = "description", length = 5000)
     private String issueDescription;
 
@@ -50,9 +56,11 @@ public class Issue {
     @Column(name = "priority", nullable = false, length = 50)
     private IssuePriority issuePriority;
 
-    // Filled by the database default, so Hibernate never writes it.
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime issueCreationTime;
+
+    @Column(name = "updated_at", insertable = false, updatable = false)
+    private LocalDateTime issueLastUpdated;
 
     /////////////////////////
     // Getters and Setters //

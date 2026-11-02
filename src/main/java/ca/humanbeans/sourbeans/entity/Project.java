@@ -44,6 +44,9 @@ public class Project {
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime projectCreationTime;
 
+    @Column(name = "updated_at", insertable = false, updatable = false)
+    private LocalDateTime projectLastUpdate;
+
     @OneToMany(mappedBy = "project", orphanRemoval = true)
     private List<Issue> issues = new ArrayList<>();
 
