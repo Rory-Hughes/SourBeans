@@ -45,9 +45,9 @@ public class Project {
     private LocalDateTime projectCreationTime;
 
     @Column(name = "updated_at", insertable = false, updatable = false)
-    private LocalDateTime projectLastUpdate;
+    private LocalDateTime projectLastUpdated;
 
-    @OneToMany(mappedBy = "project", orphanRemoval = true)
+    @OneToMany(mappedBy = "project")
     private List<Issue> issues = new ArrayList<>();
 
     /////////////////////////
@@ -73,6 +73,11 @@ public class Project {
     }
     public void setProjectCreationTime(LocalDateTime projectCreationTime) {
         this.projectCreationTime = projectCreationTime;
+    }
+    // Project Update Time
+    public LocalDateTime getProjectLastUpdated() { return projectLastUpdated; }
+    public void setProjectLastUpdated(LocalDateTime projectLastUpdated) {
+        this.projectLastUpdated = projectLastUpdated;
     }
     // Issues
     public List<Issue> getIssues() { return issues; }

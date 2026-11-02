@@ -96,7 +96,11 @@ public class Issue {
     public void setIssueCreationTime(LocalDateTime issueCreationTime) {
         this.issueCreationTime = issueCreationTime;
     }
+    public LocalDateTime getIssueLastUpdated() { return issueLastUpdated; }
 
+    public void setIssueLastUpdated(LocalDateTime issueLastUpdated) {
+        this.issueLastUpdated = issueLastUpdated;
+    }
     /////////////
     // Methods //
     /////////////

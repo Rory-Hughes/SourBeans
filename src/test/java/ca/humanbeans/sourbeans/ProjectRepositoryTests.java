@@ -94,16 +94,12 @@ class ProjectRepositoryTests {
                                    String.class, id);
     }
 
-    /**
-     * Inserts an issue row directly. Status and priority are set explicitly so
-     * Hibernate can read the row back as enums (the column defaults are not
-     * enum constants).
-     */
+    /** Inserts an issue row directly, bypassing the entity mapping. */
     private void insertIssueRow(long projectId, String title) {
         jdbc.update("INSERT INTO issues (project_id, title, status, priority) "
                         + "VALUES (?, ?, ?, ?)",
-                    projectId, title, IssueStatus.values()[0].name(),
-                    IssuePriority.values()[0].name());
+                    projectId, title, IssueStatus.OPEN.name(),
+                    IssuePriority.MEDIUM.name());
     }
 
     // ---------- test data ----------
@@ -400,21 +396,29 @@ class ProjectRepositoryTests {
     }
 
     @Test
-    void deletingAProjectRemovesItsIssuesOnly() {
+    void deletingAProjectThatHasIssuesIsRejected() {
         long doomed = saveProject("Doomed", null);
         long safe = saveProject("Survivor", null);
-        insertIssueRow(doomed, "Goes away 1");
-        insertIssueRow(doomed, "Goes away 2");
+        insertIssueRow(doomed, "Stays 1");
+        insertIssueRow(doomed, "Stays 2");
         insertIssueRow(safe, "Stays put");
 
-        repository.deleteById(doomed);
-        flushAndClear();
+        assertSaveRejected(() -> repository.deleteById(doomed));
 
-        assertEquals(0, jdbc.queryForObject(
+        assertEquals(2, projectCount());
+        assertEquals(2, jdbc.queryForObject(
                             "SELECT COUNT(*) FROM issues WHERE project_id = ?",
                             Integer.class, doomed));
         assertEquals(1, jdbc.queryForObject(
                             "SELECT COUNT(*) FROM issues WHERE project_id = ?",
                             Integer.class, safe));
+    }
+
+    @Test
+    void updatedAtIsFilledByTheDatabase() {
+        long id = saveProject("Timestamped", null);
+
+        assertNotNull(jdbc.queryForObject(
+            "SELECT updated_at FROM projects WHERE id = ?", Object.class, id));
     }
 }

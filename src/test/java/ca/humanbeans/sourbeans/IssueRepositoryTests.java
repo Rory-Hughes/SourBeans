@@ -31,11 +31,10 @@ import org.springframework.transaction.annotation.Transactional;
  * (CrudRepository<Issue, Long> and CrudRepository<Project, Long>) and the
  * entities must use Long ids too, to match the BIGINT columns.
  *
- * Title length rules (5 to 120) and the 5000 character description limit are
- * enforced by the database only, because Issue has no validation annotations.
- * Those tests need MySQL 8.0.16+ or MariaDB 10.2.1+ and strict SQL mode. Adding
- * @NotBlank and @Size(min = 5, max = 120) to Issue.issueTitle would give clear
- * Java-side errors as well.
+ * Title (5 to 120) and description (5000) limits are enforced by Bean
+ * Validation on Issue and again by the database (CHECK and column length).
+ * The database checks need MySQL 8.0.16+ or MariaDB 10.2.1+ and strict SQL
+ * mode.
  *
  * Status and priority tests use the enum constants through values(), so they
  * keep working when constants are added or renamed.
@@ -498,19 +497,85 @@ class IssueRepositoryTests {
     }
 
     @Test
-    void deletingAProjectRemovesItsIssuesOnly() {
+    void deletingAProjectThatHasIssuesIsRejected() {
         long doomed = saveProject("Doomed");
         long safe = saveProject("Survivor");
-        saveIssue(doomed, "Goes away 1");
-        saveIssue(doomed, "Goes away 2");
+        saveIssue(doomed, "Stays 1");
+        saveIssue(doomed, "Stays 2");
         saveIssue(safe, "Stays put");
 
-        projectRepository.deleteById(doomed);
+        assertSaveRejected(() -> projectRepository.deleteById(doomed));
+
+        assertEquals(2, projectCount());
+        assertEquals(3, issueCount());
+    }
+
+    @Test
+    void aProjectCanBeDeletedOnceItsIssuesAreGone() {
+        long projectId = saveProject("Emptied");
+        long issueId = saveIssue(projectId, "Temporary");
+
+        issueRepository.deleteById(issueId);
+        flushAndClear();
+        projectRepository.deleteById(projectId);
         flushAndClear();
 
-        assertEquals(1, issueCount());
-        assertEquals(1, jdbc.queryForObject(
-                            "SELECT COUNT(*) FROM issues WHERE project_id = ?",
-                            Integer.class, safe));
+        assertEquals(0, projectCount());
+    }
+
+    // ---------- existsByProject_ProjectId ----------
+
+    @Test
+    void existsByProjectIsTrueOnlyForProjectsThatHaveIssues() {
+        long withIssue = saveProject("Has one");
+        long empty = saveProject("Has none");
+        saveIssue(withIssue, "Only issue");
+
+        assertTrue(issueRepository.existsByProject_ProjectId(withIssue));
+        assertFalse(issueRepository.existsByProject_ProjectId(empty));
+        assertFalse(issueRepository.existsByProject_ProjectId(999_999_999L));
+    }
+
+    @Test
+    void existsByProjectBecomesFalseWhenItsLastIssueIsDeleted() {
+        long projectId = saveProject("Shrinking");
+        long first = saveIssue(projectId, "First issue");
+        long second = saveIssue(projectId, "Second issue");
+
+        issueRepository.deleteById(first);
+        flushAndClear();
+        assertTrue(issueRepository.existsByProject_ProjectId(projectId));
+
+        issueRepository.deleteById(second);
+        flushAndClear();
+        assertFalse(issueRepository.existsByProject_ProjectId(projectId));
+    }
+
+    @Test
+    void updatedAtIsFilledByTheDatabase() {
+        long issueId = saveIssue(saveProject("Tracker"), "Has timestamp");
+
+        assertNotNull(
+            jdbc.queryForObject("SELECT updated_at FROM issues WHERE id = ?",
+                                Object.class, issueId));
+    }
+
+    @Test
+    void issueWithoutAProjectIsRejectedBeforeReachingTheDatabase() {
+        // Bean Validation (@NotNull on Issue.project) should catch this itself.
+        Issue issue = newIssue(saveProject("Tracker"), "Orphan issue");
+        issue.setProject(null);
+
+        Exception thrown = assertThrows(Exception.class, () -> {
+            issueRepository.save(issue);
+            entityManager.flush();
+        });
+        entityManager.clear();
+        Throwable root = thrown;
+        while (root.getCause() != null && root.getCause() != root)
+            root = root.getCause();
+        assertInstanceOf(jakarta.validation.ConstraintViolationException.class,
+                         root,
+                         "Expected a validation failure but got: " + thrown);
     }
 }

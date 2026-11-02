@@ -6,6 +6,7 @@ import ca.humanbeans.sourbeans.repository.*;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ProjectService {
@@ -87,14 +88,17 @@ public class ProjectService {
         }
     }
     // DELETE
+    @Transactional
     public void deleteProject(Long projectIdToDelete) {
         try {
             if (projectIdToDelete == null) {
-                // NOTE: This seems like a case for a custom exception
                 throw new IllegalArgumentException();
             }
             if (!projectExists(projectIdToDelete)) {
                 throw new ResourceNotFoundException();
+            }
+            if (issueRepo.existsByProject_ProjectId(projectIdToDelete)) {
+                throw new ResourceConflictException();
             }
             projectRepo.deleteById(projectIdToDelete);
         } catch (Exception e) {

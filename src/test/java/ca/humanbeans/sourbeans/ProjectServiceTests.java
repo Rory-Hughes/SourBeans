@@ -80,6 +80,21 @@ class ProjectServiceTests {
                              thrown);
     }
 
+    /** Persists a project with one issue and returns the (detached) project. */
+    private Project persistProjectWithIssue(String issueTitle) {
+        Project project = newProject("Has issues", "desc");
+        entityManager.persist(project);
+        Issue issue = new Issue();
+        issue.setProject(project);
+        issue.setIssueTitle(issueTitle);
+        issue.setIssueStatus(IssueStatus.OPEN);
+        issue.setIssuePriority(IssuePriority.MEDIUM);
+        entityManager.persist(issue);
+        project.getIssues().add(issue);
+        flushAndClear();
+        return project;
+    }
+
     private long issueCountWithTitle(String title) {
         return entityManager
             .createQuery("select count(i) from Issue i where i.issueTitle = :t",
@@ -441,26 +456,72 @@ class ProjectServiceTests {
     }
 
     @Test
-    void deleteProject_withIssues_doesNotLeaveOrphanedIssues() {
-        String title = "orphan-check-" + UUID.randomUUID();
-        Project project = newProject("Has issues", "desc");
-        entityManager.persist(project);
+    void deleteProject_withIssues_throwsConflict() {
+        Project project = persistProjectWithIssue("conflict-check-1");
 
-        Issue issue = new Issue();
-        issue.setProject(project);
-        issue.setIssueTitle(title);
-        issue.setIssueStatus(IssueStatus.TODO);
-        issue.setIssuePriority(IssuePriority.MEDIUM);
-        entityManager.persist(issue);
-        project.getIssues().add(issue);
+        assertThrows(ResourceConflictException.class,
+                     () -> service.deleteProject(project.getProjectId()));
+    }
+
+    @Test
+    void deleteProject_withIssues_keepsTheProjectAndItsIssues() {
+        String title = "keep-check-" + UUID.randomUUID();
+        Project project = persistProjectWithIssue(title);
+        int before = projectCount();
+
+        assertThrows(ResourceConflictException.class,
+                     () -> service.deleteProject(project.getProjectId()));
         flushAndClear();
-        assertEquals(1, issueCountWithTitle(title), "test setup sanity check");
+
+        assertEquals(before, projectCount());
+        assertEquals(
+            "Has issues",
+            service.getProjectById(project.getProjectId()).getProjectName());
+        assertEquals(1, issueCountWithTitle(title));
+    }
+
+    @Test
+    void deleteProject_withIssues_conflictAppliesToEveryOverload() {
+        Project project = persistProjectWithIssue("overload-check");
+        Long id = project.getProjectId();
+
+        assertThrows(ResourceConflictException.class,
+                     () -> service.deleteProject(id.intValue()));
+        assertThrows(ResourceConflictException.class,
+                     () -> service.deleteProject(String.valueOf(id)));
+        assertThrows(ResourceConflictException.class,
+                     () -> service.deleteProject(project));
+    }
+
+    @Test
+    void deleteProject_withIssues_doesNotAffectOtherProjects() {
+        Project blocked = persistProjectWithIssue("blocked-by-issue");
+        Project free = persistProject("Free project", "no issues");
+
+        assertThrows(ResourceConflictException.class,
+                     () -> service.deleteProject(blocked.getProjectId()));
+        service.deleteProject(free.getProjectId());
+        flushAndClear();
+
+        assertThrows(ResourceNotFoundException.class,
+                     () -> service.getProjectById(free.getProjectId()));
+        assertNotNull(service.getProjectById(blocked.getProjectId()));
+    }
+
+    @Test
+    void deleteProject_afterItsIssuesAreRemoved_succeeds() {
+        Project project = persistProjectWithIssue("removable-issue");
+        entityManager
+            .createQuery("delete from Issue i where i.project.projectId = :id")
+            .setParameter("id", project.getProjectId())
+            .executeUpdate();
+        flushAndClear();
 
         service.deleteProject(project.getProjectId());
         flushAndClear();
 
-        assertEquals(0, issueCountWithTitle(title),
-                     "deleting a project must not leave its issues behind");
+        assertThrows(ResourceNotFoundException.class,
+                     () -> service.getProjectById(project.getProjectId()));
     }
 
     @Test

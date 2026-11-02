@@ -70,7 +70,7 @@ class EntityMappingTests {
         Issue issue = new Issue();
         issue.setProject(project);
         issue.setIssueTitle(title);
-        issue.setIssueStatus(IssueStatus.TODO);
+        issue.setIssueStatus(IssueStatus.OPEN);
         issue.setIssuePriority(IssuePriority.MEDIUM);
         return issue;
     }
@@ -87,8 +87,8 @@ class EntityMappingTests {
         entityManager.clear();
     }
 
-    private boolean hasViolationOn(Project project, String property) {
-        return validator.validate(project).stream().anyMatch(
+    private boolean hasViolationOn(Object entity, String property) {
+        return validator.validate(entity).stream().anyMatch(
             v -> v.getPropertyPath().toString().equals(property));
     }
 
@@ -251,7 +251,7 @@ class EntityMappingTests {
     void issueStatusAndPriorityAreStoredAsText() {
         Project project = persistProject("Enums", null);
         Issue issue = newIssue(project, "Urgent thing");
-        issue.setIssueStatus(IssueStatus.IN_PROGRESS);
+        issue.setIssueStatus(IssueStatus.OPEN);
         issue.setIssuePriority(IssuePriority.HIGH);
         entityManager.persist(issue);
         entityManager.flush();
@@ -267,7 +267,7 @@ class EntityMappingTests {
     void issueStatusAndPriorityComeBackAsEnums() {
         Project project = persistProject("EnumsBack", null);
         Issue issue = newIssue(project, "Round trip");
-        issue.setIssueStatus(IssueStatus.DONE);
+        issue.setIssueStatus(IssueStatus.CLOSED);
         issue.setIssuePriority(IssuePriority.LOW);
         entityManager.persist(issue);
         project.getIssues().add(issue);
@@ -275,7 +275,7 @@ class EntityMappingTests {
         flushAndClear();
 
         Issue found = entityManager.find(Project.class, id).getIssues().get(0);
-        assertEquals(IssueStatus.DONE, found.getIssueStatus());
+        assertEquals(IssueStatus.CLOSED, found.getIssueStatus());
         assertEquals(IssuePriority.LOW, found.getIssuePriority());
     }
 
@@ -358,7 +358,9 @@ class EntityMappingTests {
     }
 
     @Test
-    void removingAnIssueFromTheListDeletesItButKeepsTheProject() {
+    void removingAnIssueFromTheListDoesNotDeleteIt() {
+        // No orphan removal: issues are deleted explicitly, never by dropping
+        // them from the parent's list.
         Project project = persistProject("Parent", null);
         persistIssue(project, "Child number 1");
         persistIssue(project, "Child number 2");
@@ -369,24 +371,107 @@ class EntityMappingTests {
         found.getIssues().remove(0);
         flushAndClear();
 
-        assertEquals(1, count("issues"));
+        assertEquals(2, count("issues"));
         assertEquals(1, count("projects"));
     }
 
     @Test
-    void removingAProjectRemovesItsIssues() {
-        Project project = persistProject("Doomed", null);
-        persistIssue(project, "Goes away 1");
-        persistIssue(project, "Goes away 2");
-        Project survivor = persistProject("Survivor", null);
-        persistIssue(survivor, "Stays put");
+    void removingAProjectThatHasIssuesFails() {
+        Project project = persistProject("Protected", null);
+        persistIssue(project, "Blocks delete 1");
+        persistIssue(project, "Blocks delete 2");
+        Project other = persistProject("Other", null);
+        persistIssue(other, "Unrelated");
         long id = project.getProjectId();
         flushAndClear();
 
-        entityManager.remove(entityManager.find(Project.class, id));
+        assertThrows(Exception.class, () -> {
+            entityManager.remove(entityManager.find(Project.class, id));
+            entityManager.flush();
+        });
+        entityManager.clear();
+
+        assertEquals(2, count("projects"));
+        assertEquals(3, count("issues"));
+    }
+
+    @Test
+    void removingAProjectWithNoIssuesSucceeds() {
+        long empty = persistProject("Empty", null).getProjectId();
+        persistProject("Keeper", null);
+        flushAndClear();
+
+        entityManager.remove(entityManager.find(Project.class, empty));
         flushAndClear();
 
         assertEquals(1, count("projects"));
-        assertEquals(1, count("issues"));
+    }
+
+    // ---------- Issue validation rules ----------
+
+    static Stream<String> invalidTitles() {
+        return Stream.of(null, "", "     ", "a", "abcd", "t".repeat(121));
+    }
+
+    static Stream<String> validTitles() {
+        return Stream.of("abcde", "abcdef", "t".repeat(119), "t".repeat(120));
+    }
+
+    private Issue unsavedIssue(String title) {
+        return newIssue(newProject("Website", null), title);
+    }
+
+    @Test
+    void validIssueHasNoViolations() {
+        assertTrue(validator.validate(unsavedIssue("Fix login bug")).isEmpty());
+    }
+
+    @ParameterizedTest(name = "[{index}]")
+    @MethodSource("invalidTitles")
+    void invalidIssueTitlesBreakTheTitleRule(String title) {
+        assertTrue(hasViolationOn(unsavedIssue(title), "issueTitle"));
+    }
+
+    @ParameterizedTest(name = "[{index}]")
+    @MethodSource("validTitles")
+    void validIssueTitlesPassTheTitleRule(String title) {
+        assertFalse(hasViolationOn(unsavedIssue(title), "issueTitle"));
+    }
+
+    @Test
+    void issueWithoutAProjectBreaksTheProjectRule() {
+        assertTrue(hasViolationOn(newIssue(null, "Orphan issue"), "project"));
+    }
+
+    @Test
+    void issueDescriptionMaxIs5000Characters() {
+        Issue fits = unsavedIssue("Big description");
+        fits.setIssueDescription("d".repeat(5000));
+        Issue tooBig = unsavedIssue("Too big description");
+        tooBig.setIssueDescription("d".repeat(5001));
+
+        assertFalse(hasViolationOn(fits, "issueDescription"));
+        assertTrue(hasViolationOn(tooBig, "issueDescription"));
+    }
+
+    // ---------- updated_at mapping ----------
+
+    @Test
+    void projectUpdatedAtIsFilledByTheDatabase() {
+        long id = persistProject("Timestamped", null).getProjectId();
+        entityManager.flush();
+
+        assertNotNull(jdbc.queryForObject(
+            "SELECT updated_at FROM projects WHERE id = ?", Object.class, id));
+    }
+
+    @Test
+    void issueUpdatedAtIsFilledByTheDatabase() {
+        Project project = persistProject("IssueTime", null);
+        long id = persistIssue(project, "Has timestamp").getIssueId();
+        entityManager.flush();
+
+        assertNotNull(jdbc.queryForObject(
+            "SELECT updated_at FROM issues WHERE id = ?", Object.class, id));
     }
 }
