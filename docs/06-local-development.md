@@ -9,7 +9,7 @@ Use Java 21 or 25 (Maven targets release 21), Spring Boot 4.1.2, and a local dat
 3. Open an administrator client from the repository root. For Rory:
 
     ```powershell
-    & 'C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe' --host=localhost --port=3307 --user=root --password
+    & 'C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe' --host=localhost --port=3306 --user=root --password
     ```
 
     On Arch, socket administrator authentication may use `sudo mariadb`.
@@ -22,7 +22,7 @@ Use Java 21 or 25 (Maven targets release 21), Spring Boot 4.1.2, and a local dat
 Copy `local.properties.example` to `local.properties` in the repository root. For Rory:
 
 ```properties
-spring.datasource.url=jdbc:mysql://localhost:3307/sourbeans
+spring.datasource.url=jdbc:mysql://localhost:3306/sourbeans
 spring.datasource.username=sourbeans_app
 spring.datasource.password=YOUR_LOCAL_PASSWORD
 ```
