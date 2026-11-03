@@ -6,7 +6,7 @@
 
 - **Project:** Container for issues, with a name and description.
 - **Issue:** Trackable piece of work belonging to exactly one project.
-- **Status:** `OPEN`, `IN_PROGRESS`, or `CLOSED`.
+- **Status:** `OPEN`, or `CLOSED`.
 - **Priority:** `LOW`, `MEDIUM`, or `HIGH`.
 - **Member / Owner:** Release 2 authorization roles _within a project_ (not MVP features).
 
@@ -49,7 +49,7 @@
 2. Choose **New issue**.
 3. Submit title, description, and optional priority.
 4. Find the new issue in the project list with status `OPEN`.
-5. Edit it to `IN_PROGRESS`, then `CLOSED`.
+5. Edit it to `CLOSED`.
 6. Confirm the updated status is visible through both web page and API.
 
 ### Protected project access (Release 2)

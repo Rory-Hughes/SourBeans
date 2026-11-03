@@ -3,6 +3,7 @@ package ca.humanbeans.sourbeans;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.sql.Statement;
+import java.sql.Timestamp;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -134,21 +135,21 @@ class SchemaBehaviourTests {
     }
 
     @Test
-    void issueDefaultsToOpenStatusAndMediumPriority() {
+    void issueDefaultsToTodoStatusAndMediumPriority() {
         long issueId =
             insertIssue(insertProject("Defaults", null), "Check defaults");
 
         var row = jdbc.queryForMap(
             "SELECT status, priority FROM issues WHERE id = ?", issueId);
-        assertEquals("OPEN", row.get("status"));
+        assertEquals("TODO", row.get("status"));
         assertEquals("MEDIUM", row.get("priority"));
     }
 
     @Test
     void issueStatusAndPriorityCanBeSet() {
         long projectId = insertProject("Explicit", null);
-        jdbc.update("INSERT INTO issues (project_id, title, status, " +
-                    "priority) VALUES (?, ?, ?, ?)",
+        jdbc.update("INSERT INTO issues (project_id, title, status, "
+                        + "priority) VALUES (?, ?, ?, ?)",
                     projectId, "Urgent thing", "IN_PROGRESS", "HIGH");
 
         var row = jdbc.queryForMap(
@@ -190,8 +191,8 @@ class SchemaBehaviourTests {
         long projectId = insertProject("DescRule", null);
         assertDoesNotThrow(
             ()
-                -> jdbc.update("INSERT INTO issues (project_id, title, " +
-                               "description) VALUES (?, ?, ?)",
+                -> jdbc.update("INSERT INTO issues (project_id, title, "
+                                   + "description) VALUES (?, ?, ?)",
                                projectId, "Big description", "d".repeat(5000)));
         assertDoesNotThrow(() -> insertIssue(projectId, "No description"));
     }
@@ -215,21 +216,43 @@ class SchemaBehaviourTests {
     }
 
     @Test
-    void deletingProjectDeletesItsIssuesOnly() {
+    void deletingAProjectThatHasIssuesIsRejected() {
         long doomed = insertProject("Doomed", null);
         long safe = insertProject("Survivor", null);
-        insertIssue(doomed, "Goes away 1");
-        insertIssue(doomed, "Goes away 2");
+        insertIssue(doomed, "Stays 1");
+        insertIssue(doomed, "Stays 2");
         insertIssue(safe, "Stays put");
 
-        jdbc.update("DELETE FROM projects WHERE id = ?", doomed);
+        assertThrows(
+            DataAccessException.class,
+            () -> jdbc.update("DELETE FROM projects WHERE id = ?", doomed));
 
-        assertEquals(0, jdbc.queryForObject(
-                            "SELECT COUNT(*) FROM issues WHERE project_id = ?",
-                            Integer.class, doomed));
-        assertEquals(1, jdbc.queryForObject(
-                            "SELECT COUNT(*) FROM issues WHERE project_id = ?",
-                            Integer.class, safe));
+        assertEquals(2, count("projects"));
+        assertEquals(3, count("issues"));
+    }
+
+    @Test
+    void deletingAProjectWithNoIssuesIsAllowed() {
+        long empty = insertProject("Empty", null);
+        long busy = insertProject("Busy", null);
+        insertIssue(busy, "Stays put");
+
+        assertEquals(1,
+                     jdbc.update("DELETE FROM projects WHERE id = ?", empty));
+
+        assertEquals(1, count("projects"));
+        assertEquals(1, count("issues"));
+    }
+
+    @Test
+    void deletingAnIssueDoesNotDeleteItsProject() {
+        long projectId = insertProject("Parent", null);
+        long issueId = insertIssue(projectId, "Short lived");
+
+        jdbc.update("DELETE FROM issues WHERE id = ?", issueId);
+
+        assertEquals(1, count("projects"));
+        assertEquals(0, count("issues"));
     }
 
     @Test
@@ -266,5 +289,70 @@ class SchemaBehaviourTests {
         // visible.
         assertEquals(0, count("issues"));
         assertEquals(0, count("projects"));
+    }
+
+    // ---------- updated_at ----------
+
+    private Timestamp updatedAt(String table, long id) {
+        return jdbc.queryForObject("SELECT updated_at FROM " + table +
+                                       " WHERE id = ?",
+                                   Timestamp.class, id);
+    }
+
+    @Test
+    void projectUpdatedAtIsFilledAutomatically() {
+        long id = insertProject("Timestamped", null);
+
+        assertNotNull(updatedAt("projects", id));
+    }
+
+    @Test
+    void issueUpdatedAtIsFilledAutomatically() {
+        long id =
+            insertIssue(insertProject("IssueTime", null), "Has timestamp");
+
+        assertNotNull(updatedAt("issues", id));
+    }
+
+    @Test
+    void projectUpdatedAtChangesWhenTheRowChanges() {
+        long id = insertProject("Before", null);
+        // Pin an old value so the test does not depend on the clock.
+        jdbc.update("UPDATE projects SET updated_at = '2000-01-01 00:00:00' " +
+                    "WHERE id = ?",
+                    id);
+
+        jdbc.update("UPDATE projects SET name = ? WHERE id = ?", "After", id);
+
+        assertTrue(updatedAt("projects", id).toLocalDateTime().getYear() >
+                   2000);
+    }
+
+    @Test
+    void issueUpdatedAtChangesWhenTheRowChanges() {
+        long id = insertIssue(insertProject("Parent", null), "Before title");
+        jdbc.update(
+            "UPDATE issues SET updated_at = '2000-01-01 00:00:00' WHERE id = ?",
+            id);
+
+        jdbc.update("UPDATE issues SET title = ? WHERE id = ?", "After title",
+                    id);
+
+        assertTrue(updatedAt("issues", id).toLocalDateTime().getYear() > 2000);
+    }
+
+    @Test
+    void updatingARowDoesNotChangeCreatedAt() {
+        long id = insertProject("Before", null);
+        Timestamp created =
+            jdbc.queryForObject("SELECT created_at FROM projects WHERE id = ?",
+                                Timestamp.class, id);
+
+        jdbc.update("UPDATE projects SET name = ? WHERE id = ?", "After", id);
+
+        assertEquals(
+            created,
+            jdbc.queryForObject("SELECT created_at FROM projects WHERE id = ?",
+                                Timestamp.class, id));
     }
 }

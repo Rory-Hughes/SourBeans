@@ -19,9 +19,9 @@ CREATE TABLE IF NOT EXISTS projects (
   name        VARCHAR(80)   NOT NULL,
   description VARCHAR(1000) NULL,
   created_at  TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at  TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  CONSTRAINT verify_name_length CHECK (CHAR_LENGTH(TRIM( name )) >= 3)-- Minimum 3 chars trimmed for whitespace
+  CONSTRAINT verify_name_length CHECK (CHAR_LENGTH(TRIM(name)) >= 3)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS issues (
@@ -32,11 +32,11 @@ CREATE TABLE IF NOT EXISTS issues (
   status      VARCHAR(50)   NOT NULL DEFAULT 'OPEN',
   priority    VARCHAR(50)   NOT NULL DEFAULT 'MEDIUM',
   created_at  TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at  TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  CONSTRAINT verify_title_length CHECK (CHAR_LENGTH(TRIM(title)) >= 5), -- Minimum 5 chars trimmed for whitespace
+  CONSTRAINT verify_title_length CHECK (CHAR_LENGTH(TRIM(title)) >= 5),
   CONSTRAINT fk_issues_project
     FOREIGN KEY (project_id) REFERENCES projects (id)
-    ON DELETE CASCADE, -- Deleting a project deletes its issues
+    ON DELETE RESTRICT,
   INDEX idx_issues_project_status (project_id, status)
 ) ENGINE=InnoDB;
