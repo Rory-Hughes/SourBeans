@@ -3,9 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <title>SourBeans</title>
-        <%-- import the default stylesheet --%>
         <link rel="stylesheet" href="../styles.css"></link>
-        <%-- import the pages styles --%>
         <link rel="stylesheet" href="./index.css"></link>
     </head>
     <body>
@@ -15,17 +13,17 @@
                 <p class="logo-text">SourBeans</p>
             </div>
             <div class="nav-link-wrapper">
+                <a class="nav-link">Home</a>
                 <a class="nav-link">Projects</a>
                 <a class="nav-link">Profile</a>
             </div>
             <div class="quick-actions">
                 <button class="quick-action-button">Create Project</button>
-
             </div>
         </div>
         <section class="hero">
             <h1 th:text="${message}">This is where the hero will go :)</h1>
-
+            <p>Customize the styling of this using the css for the page ^^</p>
         </section>
     </body>
 </html>

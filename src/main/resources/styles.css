@@ -44,9 +44,21 @@ button:hover {
     background-color: var(--surface-raise);
     border: 2px solid var(--accent-hover);
 }
+/* Our Default Anchors */
+a {
+    font-weight: 500;
+    border-bottom: 1px solid transparent;
+}
+a:hover {
+    transition: 0.1s ease-in-out;
+    cursor: pointer;
+    color: var(--accent-hover);
+    border-bottom: 1px solid var(--accent);
+}
 /* Sections default to flex and fill the whole screen */
 section {
     display: flex;
     width: 100%;
     height: 100vh;
+    flex-direction: column;
 }
