@@ -1,0 +1,35 @@
+.navbar {
+    width: 100%;
+    height: 3rem;
+    background-color: var(--surface);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+}
+.logo-wrapper {
+    display: flex;
+    font-size: 18pt;
+    font-weight: 300;
+    width: 10%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+}
+.nav-link-wrapper {
+    display: flex;
+    width: 70%;
+    justify-content: space-evenly;
+    align-items: center;
+}
+.quick-actions {
+    display: flex;
+    width: 10%;
+    justify-content: center;
+    align-items: center;
+}
+
+.hero {
+    justify-content: center;
+    align-items: center;
+}
