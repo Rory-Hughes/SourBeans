@@ -1,0 +1,64 @@
+/* Our Color Pallet and house-keeping */
+* {
+    --background: #15130f;
+    --surface: #1e1b16;
+    --surface-raise: #28241d;
+    --border: #3a352b;
+    --text: #e8e2d4;
+    --text-muted: #9a9283;
+    --accent: #c5d84a;
+    --accent-hover: #d6e865;
+    --open-issue: #8fbf6a;
+    --closed-issue: #9b8ccf;
+    --warning: #e3b04b;
+    --danger: #e0685a;
+    --info: #6fb3c9;
+    box-sizing: border-box;
+    margin: 0;
+    font-family:
+        "OracleSansVF",
+        "OracleSansVFCyGr",
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        "Helvetica Neue",
+        sans-serif;
+}
+body {
+    display: flex;
+    background-color: var(--background);
+    color: var(--text);
+    flex-direction: column;
+}
+/* Our Default Button */
+button {
+    background-color: var(--surface);
+    color: var(--text);
+    padding: 0.5rem;
+    border: 2px solid var(--accent);
+    border-radius: 1rem;
+    cursor: pointer;
+    transition: 0.2s ease-in-out;
+}
+button:hover {
+    background-color: var(--surface-raise);
+    border: 2px solid var(--accent-hover);
+}
+/* Our Default Anchors */
+a {
+    font-weight: 500;
+    border-bottom: 1px solid transparent;
+}
+a:hover {
+    transition: 0.1s ease-in-out;
+    cursor: pointer;
+    color: var(--accent-hover);
+    border-bottom: 1px solid var(--accent);
+}
+/* Sections default to flex and fill the whole screen */
+section {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    flex-direction: column;
+}
